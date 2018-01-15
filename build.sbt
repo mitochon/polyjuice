@@ -11,6 +11,7 @@ lazy val root = (project in file(".")).
     libraryDependencies += scalaTest % Test,
     libraryDependencies ++= Seq(
       "com.github.samtools" % "htsjdk" % "2.14.0",
-      "commons-io" % "commons-io" % "2.6"
+      "ch.qos.logback" % "logback-classic" % "1.2.3",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
     )
   )

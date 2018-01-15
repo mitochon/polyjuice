@@ -1,0 +1,35 @@
+package polyjuice.io
+
+import java.nio.file.Path
+
+import scala.io.{ BufferedSource, Source }
+
+import htsjdk.samtools.reference.{ IndexedFastaSequenceFile, ReferenceSequence }
+import polyjuice.model.EnsemblFastaHeaderRecord
+
+object EnsemblGeneReader {
+
+  def readHeaders(fastaPath: Path): Seq[EnsemblFastaHeaderRecord] = {
+    var fa: BufferedSource = null
+    try {
+      fa = Source.fromFile(fastaPath.toFile())
+      fa.getLines()
+        .filter(_.startsWith(EnsemblFastaHeaderRecord.Prefix))
+        .map(EnsemblFastaHeaderRecord(_))
+        .toList
+
+    } finally {
+      if (fa != null) fa.close()
+    }
+  }
+
+  def readFasta(fastaPath: Path, contig: String): ReferenceSequence = {
+    var fa: IndexedFastaSequenceFile = null
+    try {
+      fa = new IndexedFastaSequenceFile(fastaPath)
+      fa.getSequence(contig)
+    } finally {
+      if (fa != null) fa.close()
+    }
+  }
+}
