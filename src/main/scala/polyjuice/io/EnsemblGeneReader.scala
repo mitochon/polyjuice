@@ -3,19 +3,20 @@ package polyjuice.io
 import java.nio.file.Path
 
 import scala.io.{ BufferedSource, Source }
+import scala.util.Try
 
 import htsjdk.samtools.reference.{ IndexedFastaSequenceFile, ReferenceSequence }
 import polyjuice.model.EnsemblFastaHeaderRecord
 
 object EnsemblGeneReader {
 
-  def readHeaders(fastaPath: Path): Seq[EnsemblFastaHeaderRecord] = {
+  def readHeaders(fastaPath: Path): Seq[Either[Throwable, EnsemblFastaHeaderRecord]] = {
     var fa: BufferedSource = null
     try {
       fa = Source.fromFile(fastaPath.toFile())
       fa.getLines()
         .filter(_.startsWith(EnsemblFastaHeaderRecord.Prefix))
-        .map(EnsemblFastaHeaderRecord(_))
+        .map(line => Try(EnsemblFastaHeaderRecord(line)).toEither)
         .toList
 
     } finally {

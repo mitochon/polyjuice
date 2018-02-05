@@ -16,9 +16,10 @@ object EnsemblFastaHeaderRecord {
 
   val Prefix = ">"
   val ChromosomeStr = "chromosome"
-  val ChromosomeRegex = """(\w+):(\w+):(\S+):(\d+):(\d+):([-]?[1])"""
-  val LineRegex = s"^$Prefix(\\S+) (\\S+) $ChromosomeRegex gene:(\\S+).*gene_symbol:(\\S+).*".r
+  val ChromosomePattern = """(\w+):(\w+):(\S+):(\d+):(\d+):([-]?[1])"""
+  val LineRegex = s"^$Prefix(\\S+) (\\S+) $ChromosomePattern gene:(\\S+).*gene_symbol:(\\S+).*".r
 
+  @throws[Exception]
   def apply(line: String): EnsemblFastaHeaderRecord = {
 
     def toStrand(s: String) = s match {
