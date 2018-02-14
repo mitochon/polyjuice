@@ -14,29 +14,38 @@ object EnsemblExonReader {
   val ExonFeature = "exon"
   val CommentPrefix = "#"
 
-  def readGff3[A](gff3Path: Path, transcript: String, fn: Iterator[Either[Throwable, Exon]] => A): A = {
+  def transcriptFilter(transcript: String): EnsemblGff3Record => Boolean = {
+    (r: EnsemblGff3Record) => r.getParentTranscript == Some(transcript)
+  }
+
+  def readGff3[A](
+    gff3Path: Path,
+    filter: EnsemblGff3Record => Boolean,
+    fn: Iterator[Either[Throwable, Exon]] => A): A = {
+
     var stream: InputStream = null
     try {
       stream = new GZIPInputStream(Files.newInputStream(gff3Path))
-      fn(readGff3(stream, transcript))
+      fn(readGff3(stream, filter))
     } finally {
       if (stream != null) stream.close
     }
   }
 
-  def readGff3(stream: InputStream, transcript: String): Iterator[Either[Throwable, Exon]] = {
+  def readGff3(
+    stream: InputStream,
+    filter: EnsemblGff3Record => Boolean): Iterator[Either[Throwable, Exon]] = {
 
-    val transcriptValue = Some(transcript)
     val reader = Source.fromInputStream(stream)
 
-    def matchesTranscript(record: EnsemblGff3Record): Boolean = {
-      record.feature.equals(ExonFeature) && record.getParentTranscript == transcriptValue
+    def checkRecord(record: EnsemblGff3Record): Boolean = {
+      record.feature.equals(ExonFeature) && filter(record)
     }
 
     reader.getLines()
       .filterNot(_.startsWith(CommentPrefix))
       .map(line => Try(EnsemblGff3Record(line)).toEither)
-      .filter(e => e.isLeft || e.isRight && e.exists(matchesTranscript))
+      .filter(e => e.isLeft || e.isRight && e.forall(checkRecord))
       .map(_.map(r => Try(Exon(r)).toEither))
       .map(_.joinRight)
   }
