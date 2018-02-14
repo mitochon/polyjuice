@@ -1,5 +1,7 @@
 package polyjuice.model
 
+import scala.util.Try
+
 case class Exon(
   ensemblId: String,
   geneTranscript: String,
@@ -7,8 +9,8 @@ case class Exon(
   chr: String,
   start: Int,
   end: Int,
-  phase: CodonPhase.Value,
-  endPhase: CodonPhase.Value)
+  phase: Option[CodonPhase.Value],
+  endPhase: Option[CodonPhase.Value])
 
 object Exon {
 
@@ -19,6 +21,13 @@ object Exon {
 
   @throws[Exception]
   def apply(record: EnsemblGff3Record): Exon = {
+
+    def getPhase(attr: String) =
+      for {
+        a <- record.attributes.get(attr)
+        p <- Try(CodonPhase.withName(a)).toOption
+      } yield p
+
     Exon(
       record.attributes.get(EnsemblGff3Record.AttrName).get,
       record.getParentTranscript.get,
@@ -26,7 +35,7 @@ object Exon {
       record.seqId,
       record.start,
       record.end,
-      record.attributes.get(AttrPhase).map(CodonPhase.withName).get,
-      record.attributes.get(AttrEndPhase).map(CodonPhase.withName).get)
+      getPhase(AttrPhase),
+      getPhase(AttrEndPhase))
   }
 }
