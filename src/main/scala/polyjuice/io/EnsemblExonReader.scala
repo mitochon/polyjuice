@@ -14,17 +14,17 @@ object EnsemblExonReader {
   val ExonFeature = "exon"
   val CommentPrefix = "#"
 
-  def readGFF3(gff3Path: Path, transcript: String): Seq[Either[Throwable, Exon]] = {
+  def readGff3[A](gff3Path: Path, transcript: String, fn: Iterator[Either[Throwable, Exon]] => A): A = {
     var stream: InputStream = null
     try {
       stream = new GZIPInputStream(Files.newInputStream(gff3Path))
-      readGFF3(stream, transcript).toList
+      fn(readGff3(stream, transcript))
     } finally {
       if (stream != null) stream.close
     }
   }
 
-  def readGFF3(stream: InputStream, transcript: String): Iterator[Either[Throwable, Exon]] = {
+  def readGff3(stream: InputStream, transcript: String): Iterator[Either[Throwable, Exon]] = {
 
     val transcriptValue = Some(transcript)
     val reader = Source.fromInputStream(stream)
