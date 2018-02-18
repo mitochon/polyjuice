@@ -10,13 +10,18 @@ import polyjuice.model.EnsemblFastaHeaderRecord
 
 object EnsemblGeneReader {
 
-  def readHeaders[A](fastaPath: Path, fn: Iterator[Line[EnsemblFastaHeaderRecord]] => A): A = {
+  def readHeaders[A](
+    fastaPath: Path,
+    filter: EnsemblFastaHeaderRecord => Boolean,
+    fn: Iterator[Line[EnsemblFastaHeaderRecord]] => A): A = {
+
     var fa: BufferedSource = null
     try {
       fa = Source.fromFile(fastaPath.toFile())
       fn(fa.getLines()
         .filter(_.startsWith(EnsemblFastaHeaderRecord.Prefix))
-        .map(line => Try(EnsemblFastaHeaderRecord(line)).toEither))
+        .map(line => Try(EnsemblFastaHeaderRecord(line)).toEither)
+        .filter(lineFilter(_, filter)))
 
     } finally {
       if (fa != null) fa.close()

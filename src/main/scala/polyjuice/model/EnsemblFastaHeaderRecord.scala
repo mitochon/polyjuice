@@ -1,9 +1,9 @@
 package polyjuice.model
 
 case class EnsemblFastaHeaderRecord(
-  transcriptId: String,
+  transcript: String,
   geneSymbol: String,
-  ensembGeneId: String,
+  ensemblGeneId: String,
   genome: GenomeBuild.Value,
   strand: Strand.Value,
   isChromosome: Boolean,
@@ -29,9 +29,9 @@ object EnsemblFastaHeaderRecord {
     }
 
     line match {
-      case LineRegex(trId, seqType, chrom, genome, contig, start, end, strand, geneId, gene) =>
-        EnsemblFastaHeaderRecord(trId, gene, geneId, GenomeBuild.withName(genome), toStrand(strand),
-          chrom.equals(ChromosomeStr), seqType, contig, start.toInt, end.toInt)
+      case LineRegex(t, seqType, chr, genome, contig, start, end, strand, geneId, gene) =>
+        EnsemblFastaHeaderRecord(t, gene, geneId, GenomeBuild.withName(genome), toStrand(strand),
+          chr.equals(ChromosomeStr), seqType, contig, start.toInt, end.toInt)
       case _ => throw new IllegalArgumentException(s"Unable to parse $line")
     }
   }
