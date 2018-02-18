@@ -10,7 +10,7 @@ import polyjuice.model.EnsemblFastaHeaderRecord
 
 object EnsemblGeneReader {
 
-  def readHeaders[A](fastaPath: Path, fn: Iterator[Either[Throwable, EnsemblFastaHeaderRecord]] => A): A = {
+  def readHeaders[A](fastaPath: Path, fn: Iterator[Line[EnsemblFastaHeaderRecord]] => A): A = {
     var fa: BufferedSource = null
     try {
       fa = Source.fromFile(fastaPath.toFile())

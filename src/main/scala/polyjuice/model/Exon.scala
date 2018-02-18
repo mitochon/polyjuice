@@ -4,7 +4,7 @@ import scala.util.Try
 
 case class Exon(
   ensemblId: String,
-  geneTranscript: String,
+  transcript: String,
   rank: Short,
   chr: String,
   start: Int,
