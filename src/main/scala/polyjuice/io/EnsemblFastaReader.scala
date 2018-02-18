@@ -8,7 +8,7 @@ import scala.util.Try
 import htsjdk.samtools.reference.{ IndexedFastaSequenceFile, ReferenceSequence }
 import polyjuice.model.EnsemblFastaHeaderRecord
 
-object EnsemblGeneReader {
+object EnsemblFastaReader {
 
   def readHeaders[A](
     fastaPath: Path,

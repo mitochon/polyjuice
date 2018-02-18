@@ -9,7 +9,7 @@ import scala.util.Try
 
 import polyjuice.model.{ EnsemblGff3Record, Exon, UTR }
 
-object EnsemblExonReader {
+object EnsemblGff3Reader {
 
   val CommentPrefix = "#"
   val ExonFeature = "exon"
