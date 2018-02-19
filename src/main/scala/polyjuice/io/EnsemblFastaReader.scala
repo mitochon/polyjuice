@@ -1,5 +1,6 @@
 package polyjuice.io
 
+import java.io.IOException
 import java.nio.file.Path
 
 import scala.io.{ BufferedSource, Source }
@@ -10,6 +11,7 @@ import polyjuice.model.EnsemblFastaHeaderRecord
 
 object EnsemblFastaReader {
 
+  @throws[IOException]
   def readHeaders[A](
     fastaPath: Path,
     filter: EnsemblFastaHeaderRecord => Boolean,
@@ -28,11 +30,12 @@ object EnsemblFastaReader {
     }
   }
 
-  def readFasta(fastaPath: Path, contig: String): ReferenceSequence = {
+  @throws[IOException]
+  def readFasta(fastaPath: Path, transcript: String): ReferenceSequence = {
     var fa: IndexedFastaSequenceFile = null
     try {
       fa = new IndexedFastaSequenceFile(fastaPath)
-      fa.getSequence(contig)
+      fa.getSequence(transcript)
     } finally {
       if (fa != null) fa.close()
     }

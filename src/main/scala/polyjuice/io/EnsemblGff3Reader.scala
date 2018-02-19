@@ -1,6 +1,6 @@
 package polyjuice.io
 
-import java.io.InputStream
+import java.io.{ IOException, InputStream }
 import java.nio.file.{ Files, Path }
 import java.util.zip.GZIPInputStream
 
@@ -17,7 +17,11 @@ object EnsemblGff3Reader {
   val ThreePrimeUTRFeature = "three_prime_UTR"
 
   def transcriptFilter(transcript: String): EnsemblGff3Record => Boolean = {
-    (r: EnsemblGff3Record) => r.getParentTranscript == Some(transcript)
+    (r: EnsemblGff3Record) => r.getParentTranscript.exists(_.equals(transcript))
+  }
+
+  def transcriptFilter(transcripts: Set[String]): EnsemblGff3Record => Boolean = {
+    (r: EnsemblGff3Record) => r.getParentTranscript.exists(transcripts.contains)
   }
 
   def isExonRecord(record: EnsemblGff3Record): Boolean = {
@@ -37,6 +41,7 @@ object EnsemblGff3Reader {
     line.map(r => Try(UTR(r)).toEither).joinRight
   }
 
+  @throws[IOException]
   def readGff3[A](
     gff3Path: Path,
     filter: EnsemblGff3Record => Boolean,

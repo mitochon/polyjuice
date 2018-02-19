@@ -10,7 +10,7 @@ case class EnsemblFastaHeaderRecord(
   seqType: String,
   contig: String,
   start: Int,
-  end: Int)
+  stop: Int)
 
 object EnsemblFastaHeaderRecord {
 
@@ -29,9 +29,9 @@ object EnsemblFastaHeaderRecord {
     }
 
     line match {
-      case LineRegex(t, seqType, chr, genome, contig, start, end, strand, geneId, gene) =>
+      case LineRegex(t, seqType, chr, genome, contig, start, stop, strand, geneId, gene) =>
         EnsemblFastaHeaderRecord(t, gene, geneId, GenomeBuild.withName(genome), toStrand(strand),
-          chr.equals(ChromosomeStr), seqType, contig, start.toInt, end.toInt)
+          chr.equals(ChromosomeStr), seqType, contig, start.toInt, stop.toInt)
       case _ => throw new IllegalArgumentException(s"Unable to parse $line")
     }
   }
