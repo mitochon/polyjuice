@@ -10,7 +10,10 @@ case class Exon(
   start: Int,
   end: Int,
   phase: Option[CodonPhase.Value],
-  endPhase: Option[CodonPhase.Value])
+  endPhase: Option[CodonPhase.Value]) {
+
+  val length = end - start + 1
+}
 
 object Exon {
 

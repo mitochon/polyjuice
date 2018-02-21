@@ -3,11 +3,9 @@ package polyjuice.io
 import java.io.IOException
 import java.nio.file.Path
 
-import polyjuice.model.{ EnsemblFastaHeaderRecord, EnsemblGene, EnsemblGff3Record, Exon, UTR, UTRType }
+import polyjuice.model._
 
 object EnsemblGeneReader {
-
-  type GeneMap = Map[String, EnsemblGene]
 
   case class GeneParseError(
     fastaParseErrors: Seq[Throwable],
@@ -29,23 +27,23 @@ object EnsemblGeneReader {
     xs.map(_.transcript).map(removeTranscriptBuild).toSet
   }
 
-  def addExon(map: GeneMap, exon: Exon): GeneMap = {
-    map.get(exon.transcript) match {
-      case Some(gene) => map + (exon.transcript -> gene.copy(exons = gene.exons :+ exon))
-      case None       => map
+  def addExon(gene: Gene, exon: Exon): Gene = {
+    gene.get(exon.transcript) match {
+      case Some(g) => gene + (exon.transcript -> g.copy(exons = g.exons :+ exon))
+      case None    => gene
     }
   }
 
-  def addUTR(map: GeneMap, utr: UTR): GeneMap = {
+  def addUTR(gene: Gene, utr: UTR): Gene = {
     def copyUTR(gene: EnsemblGene) = utr.utrType match {
       case UTRType.five_prime_UTR  => gene.copy(utr5 = Some(utr))
       case UTRType.three_prime_UTR => gene.copy(utr3 = Some(utr))
       case _                       => gene
     }
 
-    map.get(utr.transcript) match {
-      case Some(gene) => map + (utr.transcript -> copyUTR(gene))
-      case None       => map
+    gene.get(utr.transcript) match {
+      case Some(g) => gene + (utr.transcript -> copyUTR(g))
+      case None    => gene
     }
   }
 
@@ -53,7 +51,7 @@ object EnsemblGeneReader {
   def getGene(
     gene: String,
     cdsFastaPath: Path,
-    gff3Path: Path): Either[GeneParseError, GeneMap] = {
+    gff3Path: Path): Either[GeneParseError, Gene] = {
 
     def readFasta: Seq[Line[EnsemblFastaHeaderRecord]] = {
       EnsemblFastaReader.readHeaders(cdsFastaPath, _.geneSymbol.equals(gene), _.toList)
@@ -68,8 +66,8 @@ object EnsemblGeneReader {
       EnsemblFastaReader.readFasta(cdsFastaPath, transcript).getBaseString
     }
 
-    def addFastaHeader(map: GeneMap, fastaHeader: EnsemblFastaHeaderRecord): GeneMap = {
-      map +
+    def addFastaHeader(gene: Gene, fastaHeader: EnsemblFastaHeaderRecord): Gene = {
+      gene +
         (removeTranscriptBuild(fastaHeader.transcript) ->
           EnsemblGene(
             fastaHeader.geneSymbol,
@@ -104,7 +102,7 @@ object EnsemblGeneReader {
 
     if (!parseError.isEmpty) Left(parseError)
     else {
-      val withTranscripts = fastaTranscripts.foldLeft(Map[String, EnsemblGene]())(addFastaHeader)
+      val withTranscripts = fastaTranscripts.foldLeft(emptyGene)(addFastaHeader)
       val withExons = exons.flatMap(_.right.toOption).foldLeft(withTranscripts)(addExon)
       val withUTRs = utrs.flatMap(_.right.toOption).foldLeft(withExons)(addUTR)
       Right(withUTRs)

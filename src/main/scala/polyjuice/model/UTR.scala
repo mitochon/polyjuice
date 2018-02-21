@@ -4,7 +4,10 @@ case class UTR(
   utrType: UTRType.Value,
   transcript: String,
   start: Int,
-  end: Int)
+  end: Int) {
+
+  val length = end - start + 1
+}
 
 object UTR {
 
