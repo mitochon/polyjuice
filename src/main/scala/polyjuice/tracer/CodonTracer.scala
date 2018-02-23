@@ -32,8 +32,8 @@ case class CodonTracer(gene: Gene) {
 
 object CodonTracer {
 
-  def lookup(g: EnsemblGene, codonNumber: Int): Option[Codon] = {
-    val bases = g.codingSequence.drop((codonNumber - 1) * 3).take(3)
+  def lookup(g: EnsemblGene, pos: Int): Option[Codon] = {
+    val bases = g.codingSequence.drop((pos - 1) * 3).take(3)
     if (bases.isEmpty) None else Try(Codon(bases)).toOption
   }
 }
