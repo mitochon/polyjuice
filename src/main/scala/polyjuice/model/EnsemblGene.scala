@@ -5,7 +5,7 @@ case class EnsemblGene(
   transcript: String,
   chr: String,
   start: Int,
-  stop: Int,
+  end: Int,
   strand: Strand.Value,
   utr5: Option[UTR],
   utr3: Option[UTR],
