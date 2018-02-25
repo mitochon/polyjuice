@@ -29,19 +29,13 @@ case class CodingSequenceTracer(gene: Gene) {
 
   def coord(pos: Int): Map[Transcript, Single] = {
     for {
-      (transcript, base) <- cds(pos)
+      (transcript, _) <- cds(pos)
       base <- coord(pos, transcript)
     } yield (transcript, base)
   }
 }
 
 object CodingSequenceTracer {
-
-  case class Offset(exon: Exon, pos: Int) {
-    def single(b: Base): Single = {
-      Single(exon.chr, exon.start + pos - 1, b)
-    }
-  }
 
   def seek(g: EnsemblGene, pos: Int): Option[Offset] = {
     def isLastExon(e: Exon): Boolean = {

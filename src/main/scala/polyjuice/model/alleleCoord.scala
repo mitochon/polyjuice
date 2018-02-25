@@ -13,7 +13,7 @@ case class Triple(contig: String, pos: Int, bases: Codon,
   phase: CodonPhase.Value = CodonPhase._0,
   offset: Option[Int] = None) extends AlleleCoord {
 
-  require(offset.fold(phase != CodonPhase._0)(_ => true))
+  require(offset.fold(phase == CodonPhase._0)(_ => true))
 }
 
 case class Snv(contig: String, pos: Int, ref: Base, alt: Base) extends VariantCoord

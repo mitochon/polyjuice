@@ -4,9 +4,9 @@ import org.scalatest.{ FunSpec, Matchers }
 
 import polyjuice.model._
 
-class CodingSequenceTracerTest extends FunSpec with Matchers {
+class CodonTracerTest extends FunSpec with Matchers {
 
-  describe("coding sequence tracer") {
+  describe("codon tracer") {
 
     val utr5 = Some(UTR5("123", 1, 4))
     val utr3 = Some(UTR3("123", 47, 50))
@@ -20,11 +20,10 @@ class CodingSequenceTracerTest extends FunSpec with Matchers {
       val e3 = emptyExon.copy(start = 45, end = 50)
       val g = ensemblGene.copy(exons = Seq(e1, e2, e3))
 
-      CodingSequenceTracer.seek(g, 1) shouldEqual Some(Offset(e1, 5))
-      CodingSequenceTracer.seek(g, 10) shouldEqual Some(Offset(e2, 4))
-      CodingSequenceTracer.seek(g, 23) shouldEqual Some(Offset(e3, 1))
-      CodingSequenceTracer.seek(g, 24) shouldEqual Some(Offset(e3, 2))
-      CodingSequenceTracer.seek(g, 25) shouldEqual None
+      CodonTracer.seek(g, 1) shouldEqual Some(Offset(e1, 5))
+      CodonTracer.seek(g, 2) shouldEqual Some(Offset(e1, 8))
+      CodonTracer.seek(g, 3) shouldEqual Some(Offset(e2, 1))
+      CodonTracer.seek(g, 8) shouldEqual Some(Offset(e2, 16))
     }
   }
 }
