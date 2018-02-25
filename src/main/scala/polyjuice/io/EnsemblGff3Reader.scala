@@ -13,8 +13,6 @@ object EnsemblGff3Reader {
 
   val CommentPrefix = "#"
   val ExonFeature = "exon"
-  val FivePrimeUTRFeature = "five_prime_UTR"
-  val ThreePrimeUTRFeature = "three_prime_UTR"
 
   def transcriptFilter(transcript: String): EnsemblGff3Record => Boolean = {
     (r: EnsemblGff3Record) => r.getParentTranscript.exists(_.equals(transcript))
@@ -29,8 +27,8 @@ object EnsemblGff3Reader {
   }
 
   def isUTRRecord(record: EnsemblGff3Record): Boolean = {
-    record.feature.equals(FivePrimeUTRFeature) ||
-      record.feature.equals(ThreePrimeUTRFeature)
+    record.feature.equals(UTR.FivePrime) ||
+      record.feature.equals(UTR.ThreePrime)
   }
 
   def readExon(line: Line[EnsemblGff3Record]): Line[Exon] = {

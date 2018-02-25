@@ -35,10 +35,10 @@ object EnsemblGeneReader {
   }
 
   def addUTR(gene: Gene, utr: UTR): Gene = {
-    def copyUTR(gene: EnsemblGene) = utr.utrType match {
-      case UTRType.five_prime_UTR  => gene.copy(utr5 = Some(utr))
-      case UTRType.three_prime_UTR => gene.copy(utr3 = Some(utr))
-      case _                       => gene
+    def copyUTR(gene: EnsemblGene) = utr match {
+      case u5: UTR5 => gene.copy(utr5 = Some(u5))
+      case u3: UTR3 => gene.copy(utr3 = Some(u3))
+      case _        => gene
     }
 
     gene.get(utr.transcript) match {

@@ -9,8 +9,8 @@ class CodingSequenceTracerTest extends FunSpec with Matchers {
 
   describe("coding sequence tracer") {
 
-    val utr5 = Some(UTR(UTRType.five_prime_UTR, "123", 1, 4))
-    val utr3 = Some(UTR(UTRType.five_prime_UTR, "123", 47, 50))
+    val utr5 = Some(UTR5("123", 1, 4))
+    val utr3 = Some(UTR3("123", 47, 50))
 
     val ensemblGene = EnsemblGene("g", "123", "1", 1, 50, Strand.Plus, utr5, utr3, Seq(), "ACTG")
     val emptyExon = Exon("e1", "123", 1, "1", 0, 0, None, None)

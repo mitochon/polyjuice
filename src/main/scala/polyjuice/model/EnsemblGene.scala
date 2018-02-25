@@ -7,7 +7,7 @@ case class EnsemblGene(
   start: Int,
   end: Int,
   strand: Strand.Value,
-  utr5: Option[UTR],
-  utr3: Option[UTR],
+  utr5: Option[UTR5],
+  utr3: Option[UTR3],
   exons: Seq[Exon],
   codingSequence: String)
