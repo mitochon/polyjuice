@@ -9,12 +9,8 @@ sealed trait VariantCoord extends AlleleCoord
 
 case class Single(contig: String, pos: Int, base: Base) extends AlleleCoord
 
-case class Triple(contig: String, pos: Int, bases: Codon,
-  phase: CodonPhase.Value = CodonPhase._0,
-  offset: Option[Int] = None) extends AlleleCoord {
-
-  require(offset.fold(phase == CodonPhase._0)(_ => true))
-}
+case class Triple(contig: String, pos: Int, bases: Codon, break: Option[CodonBreak.Value])
+  extends AlleleCoord
 
 case class Snv(contig: String, pos: Int, ref: Base, alt: Base) extends VariantCoord
 
