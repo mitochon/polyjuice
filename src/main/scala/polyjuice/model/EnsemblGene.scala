@@ -9,5 +9,5 @@ case class EnsemblGene(
   strand: Strand.Value,
   utr5: Option[UTR5],
   utr3: Option[UTR3],
-  exons: Seq[Exon],
+  exons: IndexedSeq[Exon],
   codingSequence: String)

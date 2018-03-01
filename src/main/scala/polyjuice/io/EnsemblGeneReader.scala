@@ -78,7 +78,7 @@ object EnsemblGeneReader {
             fastaHeader.strand,
             None,
             None,
-            Seq(),
+            IndexedSeq(),
             readBases(fastaHeader.transcript)))
     }
 
