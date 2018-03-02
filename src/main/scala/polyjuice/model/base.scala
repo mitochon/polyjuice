@@ -28,14 +28,20 @@ object Base {
     override val complement: Base = C
   }
 
+  case object N extends Base {
+    override val letter: Char = 'N'
+    override val complement: Base = N
+  }
+
   @throws[Exception]
   def apply(base: Char): Base = {
     base match {
-      case A.letter => A
-      case C.letter => C
-      case T.letter => T
-      case G.letter => G
-      case _        => throw new IllegalArgumentException("No matching base for " + base)
+      case A.letter | 'a' => A
+      case C.letter | 'c' => C
+      case T.letter | 't' => T
+      case G.letter | 'g' => G
+      case N.letter | 'n' => N
+      case _              => throw new IllegalArgumentException("No matching base for " + base)
     }
   }
 }
