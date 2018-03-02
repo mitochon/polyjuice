@@ -8,31 +8,35 @@ case class AminoAcid(
 
 object AminoAcid {
 
-  val All = Seq(
-    AminoAcid("Ile", 'I', "Isoleucine", Set("ATT", "ATC", "ATA").map(Codon(_))),
-    AminoAcid("Leu", 'L', "Leucine", Set("CTT", "CTC", "CTA", "CTG", "TTA", "TTG").map(Codon(_))),
-    AminoAcid("Val", 'V', "Valine", Set("GTT", "GTC", "GTA", "GTG").map(Codon(_))),
-    AminoAcid("Phe", 'F', "Phenylalanine", Set("TTT", "TTC").map(Codon(_))),
-    AminoAcid("Met", 'M', "Methionine", Set(Codon.Start)),
-    AminoAcid("Cys", 'C', "Cysteine", Set("TGT", "TGC").map(Codon(_))),
-    AminoAcid("Ala", 'A', "Alanine", Set("GCT", "GCC", "GCA", "GCG").map(Codon(_))),
-    AminoAcid("Gly", 'G', "Glycine", Set("GGT", "GGC", "GGA", "GGG").map(Codon(_))),
-    AminoAcid("Pro", 'P', "Proline", Set("CCT", "CCC", "CCA", "CCG").map(Codon(_))),
-    AminoAcid("Thr", 'T', "Threonine", Set("ACT", "ACC", "ACA", "ACG").map(Codon(_))),
-    AminoAcid("Ser", 'S', "Serine", Set("TCT", "TCC", "TCA", "TCG", "AGT", "AGC").map(Codon(_))),
-    AminoAcid("Tyr", 'Y', "Tyrosine", Set("TAT", "TAC").map(Codon(_))),
-    AminoAcid("Trp", 'W', "Tryptophan", Set("TGG").map(Codon(_))),
-    AminoAcid("Gln", 'Q', "Glutamine", Set("CAA", "CAG").map(Codon(_))),
-    AminoAcid("Asn", 'N', "Asparagine", Set("AAT", "AAC").map(Codon(_))),
-    AminoAcid("His", 'H', "Histidine", Set("CAT", "CAC").map(Codon(_))),
-    AminoAcid("Glu", 'E', "Glutamic acid", Set("GAA", "GAG").map(Codon(_))),
-    AminoAcid("Asp", 'D', "Aspartic acid", Set("GAT", "GAC").map(Codon(_))),
-    AminoAcid("Lys", 'K', "Lysine", Set("AAA", "AAG").map(Codon(_))),
-    AminoAcid("Arg", 'R', "Arginine", Set("CGT", "CGC", "CGA", "CGG", "AGA", "AGG").map(Codon(_))))
+  object Key extends Enumeration {
+    val Ile, Leu, Val, Phe, Met, Cys, Ala, Gly, Pro, Thr, Ser, Tyr, Trp, Gln, Asn, His, Glu, Asp, Lys, Arg = Value
+  }
 
-  val ByCode = All.map(aa => (aa.code, aa)).toMap
+  val All = Map(
+    Key.Ile -> AminoAcid("Ile", 'I', "Isoleucine", Set("ATT", "ATC", "ATA").map(Codon(_))),
+    Key.Leu -> AminoAcid("Leu", 'L', "Leucine", Set("CTT", "CTC", "CTA", "CTG", "TTA", "TTG").map(Codon(_))),
+    Key.Val -> AminoAcid("Val", 'V', "Valine", Set("GTT", "GTC", "GTA", "GTG").map(Codon(_))),
+    Key.Phe -> AminoAcid("Phe", 'F', "Phenylalanine", Set("TTT", "TTC").map(Codon(_))),
+    Key.Met -> AminoAcid("Met", 'M', "Methionine", Set(Codon.Start)),
+    Key.Cys -> AminoAcid("Cys", 'C', "Cysteine", Set("TGT", "TGC").map(Codon(_))),
+    Key.Ala -> AminoAcid("Ala", 'A', "Alanine", Set("GCT", "GCC", "GCA", "GCG").map(Codon(_))),
+    Key.Gly -> AminoAcid("Gly", 'G', "Glycine", Set("GGT", "GGC", "GGA", "GGG").map(Codon(_))),
+    Key.Pro -> AminoAcid("Pro", 'P', "Proline", Set("CCT", "CCC", "CCA", "CCG").map(Codon(_))),
+    Key.Thr -> AminoAcid("Thr", 'T', "Threonine", Set("ACT", "ACC", "ACA", "ACG").map(Codon(_))),
+    Key.Ser -> AminoAcid("Ser", 'S', "Serine", Set("TCT", "TCC", "TCA", "TCG", "AGT", "AGC").map(Codon(_))),
+    Key.Tyr -> AminoAcid("Tyr", 'Y', "Tyrosine", Set("TAT", "TAC").map(Codon(_))),
+    Key.Trp -> AminoAcid("Trp", 'W', "Tryptophan", Set("TGG").map(Codon(_))),
+    Key.Gln -> AminoAcid("Gln", 'Q', "Glutamine", Set("CAA", "CAG").map(Codon(_))),
+    Key.Asn -> AminoAcid("Asn", 'N', "Asparagine", Set("AAT", "AAC").map(Codon(_))),
+    Key.His -> AminoAcid("His", 'H', "Histidine", Set("CAT", "CAC").map(Codon(_))),
+    Key.Glu -> AminoAcid("Glu", 'E', "Glutamic acid", Set("GAA", "GAG").map(Codon(_))),
+    Key.Asp -> AminoAcid("Asp", 'D', "Aspartic acid", Set("GAT", "GAC").map(Codon(_))),
+    Key.Lys -> AminoAcid("Lys", 'K', "Lysine", Set("AAA", "AAG").map(Codon(_))),
+    Key.Arg -> AminoAcid("Arg", 'R', "Arginine", Set("CGT", "CGC", "CGA", "CGG", "AGA", "AGG").map(Codon(_))))
 
-  val BySingleLetter = All.map(aa => (aa.letter, aa)).toMap
+  val ByCode = All.values.map(aa => (aa.code, aa)).toMap
 
-  val ByCodon = All.flatMap(aa => aa.codons.map((_, aa))).toMap
+  val BySingleLetter = All.values.map(aa => (aa.letter, aa)).toMap
+
+  val ByCodon = All.values.flatMap(aa => aa.codons.map((_, aa))).toMap
 }
