@@ -2,23 +2,37 @@ package polyjuice.tracer
 
 import polyjuice.model._
 
-case class Offset(exon: Exon, pos: Int) {
+case class Offset(
+  exon: Exon,
+  pos: Int,
+  strand: Strand.Value = Strand.Plus,
+  exonDistance: Option[Int] = None) {
 
-  val coordStart = exon.start + pos - 1
+  val coordPos = strand match {
+    case Strand.Plus  => exon.start + pos - 1
+    case Strand.Minus => exon.end - pos + 1
+  }
 
-  def codonBreak: Option[CodonBreak.Value] = {
-    exon.end - coordStart match {
-      case 0 => Some(CodonBreak._1)
-      case 1 => Some(CodonBreak._2)
-      case _ => None
+  def codonBreak: Option[CodonBreak] = {
+    val delta = strand match {
+      case Strand.Plus  => exon.end - coordPos
+      case Strand.Minus => coordPos - exon.start
+    }
+
+    for {
+      d <- exonDistance
+      if (delta < 2)
+    } yield delta match {
+      case 0 => SplitAtFirst(d)
+      case _ => SplitAtSecond(d)
     }
   }
 
   def single(b: Base): Single = {
-    Single(exon.chr, coordStart, b)
+    Single(exon.chr, coordPos, b)
   }
 
   def triple(c: Codon): Triple = {
-    Triple(exon.chr, coordStart, c, codonBreak)
+    Triple(exon.chr, coordPos, c, codonBreak)
   }
 }

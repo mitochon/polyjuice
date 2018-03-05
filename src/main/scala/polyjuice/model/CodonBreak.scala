@@ -1,5 +1,9 @@
 package polyjuice.model
 
-object CodonBreak extends Enumeration {
-  val _1, _2 = Value
+sealed trait CodonBreak {
+  def distance: Int
 }
+
+case class SplitAtFirst(distance: Int) extends CodonBreak
+
+case class SplitAtSecond(distance: Int) extends CodonBreak

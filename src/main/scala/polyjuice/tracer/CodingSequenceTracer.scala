@@ -38,23 +38,38 @@ case class CodingSequenceTracer(gene: Gene) {
 object CodingSequenceTracer {
 
   def seek(g: EnsemblGene, pos: Int): Option[Offset] = {
+
+    def dist(e: Exon, f: Option[Exon]): Option[Int] = {
+      g.strand match {
+        case Strand.Plus  => f.map(_.start - e.end)
+        case Strand.Minus => f.map(e.start - _.end)
+      }
+    }
+
     def isLastExon(e: Exon): Boolean = {
-      g.end == e.end
+      g.strand match {
+        case Strand.Plus  => g.end == e.end
+        case Strand.Minus => g.start == e.start
+      }
     }
 
     def isPastUTR3(e: Exon, i: Int): Boolean = {
       isLastExon(e) && e.length - g.utr3.fold(0)(_.length) < i
     }
 
+    val exons = g.exons.sortBy(_.rank)
     var offset = None: Option[Offset]
     var remainder = pos + g.utr5.fold(0)(_.length)
 
     breakable {
-      for (e <- g.exons) {
+      for (idx <- exons.indices) {
+        val e = exons(idx)
+        val f = if (isLastExon(e)) None else Some(exons(idx + 1))
+
         if (remainder > e.length) remainder -= e.length
         else {
           if (!isPastUTR3(e, remainder)) {
-            offset = Some(Offset(e, remainder))
+            offset = Some(Offset(e, remainder, g.strand, dist(e, f)))
           }
           break
         }

@@ -16,7 +16,7 @@ case class Triple(
   contig: String,
   pos: Int,
   bases: Codon,
-  break: Option[CodonBreak.Value])
+  break: Option[CodonBreak])
   extends AlleleCoord
 
 case class Snv(
