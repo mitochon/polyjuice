@@ -62,10 +62,10 @@ object MutationTracer {
       case (true, false, false)  => Some(Snv(triple.contig, triple.pos, triple.bases.first, codon.first))
       case (false, true, false)  => Some(Snv(triple.contig, triple.pos + 1, triple.bases.second, codon.second))
       case (false, false, true)  => Some(Snv(triple.contig, triple.pos + 2, triple.bases.third, codon.third))
-      case (true, true, false)   => Some(Mnp(triple.contig, triple.pos, triple.bases.toSeq.take(2), codon.toSeq.take(2)))
-      case (false, true, true)   => Some(Mnp(triple.contig, triple.pos + 1, triple.bases.toSeq.drop(1), codon.toSeq.drop(1)))
-      case (true, false, true)   => Some(Mnp(triple.contig, triple.pos, triple.bases.toSeq, codon.toSeq))
-      case (true, true, true)    => Some(Mnp(triple.contig, triple.pos, triple.bases.toSeq, codon.toSeq))
+      case (true, true, false)   => Some(Mnv(triple.contig, triple.pos, triple.bases.toSeq.take(2), codon.toSeq.take(2)))
+      case (false, true, true)   => Some(Mnv(triple.contig, triple.pos + 1, triple.bases.toSeq.drop(1), codon.toSeq.drop(1)))
+      case (true, false, true)   => Some(Mnv(triple.contig, triple.pos, triple.bases.toSeq, codon.toSeq))
+      case (true, true, true)    => Some(Mnv(triple.contig, triple.pos, triple.bases.toSeq, codon.toSeq))
     }
   }
 }

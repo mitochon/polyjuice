@@ -6,7 +6,7 @@ case class Offset(
   exon: Exon,
   pos: Int,
   strand: Strand.Value = Strand.Plus,
-  exonDistance: Option[Int] = None) {
+  toNextExon: Option[Int] = None) {
 
   val coordPos = strand match {
     case Strand.Plus  => exon.start + pos - 1
@@ -20,7 +20,7 @@ case class Offset(
     }
 
     for {
-      d <- exonDistance
+      d <- toNextExon
       if (delta < 2)
     } yield delta match {
       case 0 => SplitAtFirst(d)
@@ -29,10 +29,22 @@ case class Offset(
   }
 
   def single(b: Base): Single = {
-    Single(exon.chr, coordPos, b)
+    strand match {
+      case Strand.Plus  => Single(exon.chr, coordPos, b)
+      case Strand.Minus => Single(exon.chr, coordPos, b.complement)
+    }
   }
 
   def triple(c: Codon): Triple = {
-    Triple(exon.chr, coordPos, c, codonBreak)
+    val break = codonBreak
+
+    def minusCoord: Int = {
+      coordPos - 2 - break.map(_.distance - 1).getOrElse(0)
+    }
+
+    strand match {
+      case Strand.Plus  => Triple(exon.chr, coordPos, c, break)
+      case Strand.Minus => Triple(exon.chr, minusCoord, c.flip, break.map(_.flip))
+    }
   }
 }

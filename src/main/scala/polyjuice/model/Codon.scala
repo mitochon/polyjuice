@@ -2,7 +2,14 @@ package polyjuice.model
 
 case class Codon(first: Base, second: Base, third: Base) {
   def bases: String = s"$first$second$third"
-  def toSeq: Seq[Base] = Seq(first, second, third)
+
+  def toSeq: Seq[Base] = {
+    Seq(first, second, third)
+  }
+
+  def flip: Codon = {
+    Codon(third.complement, second.complement, first.complement)
+  }
 }
 
 object Codon {

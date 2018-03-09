@@ -43,7 +43,7 @@ case class Del(
   require(ref.nonEmpty && alt.exists(_ == ref(0)))
 }
 
-case class Mnp(
+case class Mnv(
   contig: String,
   pos: Int,
   ref: Seq[Base],
@@ -52,7 +52,7 @@ case class Mnp(
   require(ref.nonEmpty && alt.nonEmpty && ref.length == alt.length)
 }
 
-case class Clumped(
+case class Complex(
   contig: String,
   pos: Int,
   ref: Seq[Base],
