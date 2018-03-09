@@ -10,16 +10,18 @@ case class MutationTracer(gene: Gene) {
 
   def cds(pos: Int, from: Base, to: Base, transcript: Transcript): Option[Snv] = {
     for {
+      strand <- gene.get(transcript).map(_.strand)
       single <- cdsTracer.coord(pos, transcript)
-      if (single.base == from)
-    } yield Snv(single.contig, single.pos, from, to)
+      if checkMatch(single, from, strand)
+    } yield VariantBuilder.build(single, to, strand)
   }
 
   def cds(pos: Int, from: Base, to: Base): Map[Transcript, Snv] = {
     for {
       (transcript, single) <- cdsTracer.coord(pos)
-      if (single.base == from)
-    } yield (transcript, Snv(single.contig, single.pos, from, to))
+      strand <- gene.get(transcript).map(_.strand)
+      if checkMatch(single, from, strand)
+    } yield (transcript, VariantBuilder.build(single, to, strand))
   }
 
   def aminoAcid(
@@ -29,10 +31,10 @@ case class MutationTracer(gene: Gene) {
     transcript: Transcript): Set[VariantCoord] = {
 
     val variants = for {
-      t <- codonTracer.coord(pos, transcript)
-      a <- AminoAcid.ByCodon.get(t.bases)
-      if (a == from)
-    } yield to.codons.flatMap(generateVariant(t, _))
+      triple <- codonTracer.coord(pos, transcript)
+      strand <- gene.get(transcript).map(_.strand)
+      if checkMatch(triple, from, strand)
+    } yield to.codons.flatMap(generateVariant(triple, _, strand))
 
     variants.getOrElse(Set())
   }
@@ -43,20 +45,35 @@ case class MutationTracer(gene: Gene) {
     to: AminoAcid): Map[Transcript, Set[VariantCoord]] = {
 
     for {
-      (transcript, t) <- codonTracer.coord(pos)
-      a <- AminoAcid.ByCodon.get(t.bases)
-      if (a == from)
-    } yield (transcript, to.codons.flatMap(generateVariant(t, _)))
+      (transcript, triple) <- codonTracer.coord(pos)
+      strand <- gene.get(transcript).map(_.strand)
+      if checkMatch(triple, from, strand)
+    } yield (transcript, to.codons.flatMap(generateVariant(triple, _, strand)))
   }
 }
 
 object MutationTracer {
 
+  def checkMatch(s: Single, b: Base, strand: Strand.Value): Boolean = {
+    strand match {
+      case Strand.Plus  => s.base == b
+      case Strand.Minus => s.base.complement == b
+    }
+  }
+
+  def checkMatch(t: Triple, aa: AminoAcid, strand: Strand.Value): Boolean = {
+    strand match {
+      case Strand.Plus  => AminoAcid.ByCodon.get(t.bases).exists(_ == aa)
+      case Strand.Minus => AminoAcid.ByCodon.get(t.bases.flip).exists(_ == aa)
+    }
+  }
+
   def diff(from: Codon, to: Codon): (Boolean, Boolean, Boolean) = {
     (from.first != to.first, from.second != to.second, from.third != to.third)
   }
 
-  def generateVariant(triple: Triple, codon: Codon): Option[VariantCoord] = {
+  // TODO
+  def generateVariant(triple: Triple, codon: Codon, strand: Strand.Value): Option[VariantCoord] = {
     diff(triple.bases, codon) match {
       case (false, false, false) => None
       case (true, false, false)  => Some(Snv(triple.contig, triple.pos, triple.bases.first, codon.first))
