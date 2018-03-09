@@ -20,10 +20,10 @@ class CodonTracerTest extends FunSpec with Matchers {
       val e3 = emptyExon.copy(start = 45, end = 50)
       val g = ensemblGene.copy(exons = IndexedSeq(e1, e2, e3))
 
-      CodonTracer.seek(g, 1) shouldEqual Some(Offset(e1, 5))
-      CodonTracer.seek(g, 2) shouldEqual Some(Offset(e1, 8))
-      CodonTracer.seek(g, 3) shouldEqual Some(Offset(e2, 1))
-      CodonTracer.seek(g, 8) shouldEqual Some(Offset(e2, 16))
+      CodonTracer.seek(g, 1) shouldEqual Some(Offset(e1, 5, Strand.Plus, Some(10)))
+      CodonTracer.seek(g, 2) shouldEqual Some(Offset(e1, 8, Strand.Plus, Some(10)))
+      CodonTracer.seek(g, 3) shouldEqual Some(Offset(e2, 1, Strand.Plus, Some(10)))
+      CodonTracer.seek(g, 8) shouldEqual Some(Offset(e2, 16, Strand.Plus, Some(10)))
     }
   }
 }
