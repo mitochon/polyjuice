@@ -26,6 +26,28 @@ case class MutationTracer(gene: Gene) {
 
   def aminoAcid(
     pos: Int,
+    from: Char,
+    to: Char,
+    transcript: Transcript): Set[VariantCoord] = {
+    (for {
+      f <- AminoAcid.BySingleLetter.get(from)
+      t <- AminoAcid.BySingleLetter.get(to)
+    } yield aminoAcid(pos, f, t, transcript)).getOrElse(Set())
+  }
+
+  def aminoAcid(
+    pos: Int,
+    from: AminoAcid.Code.Value,
+    to: AminoAcid.Code.Value,
+    transcript: Transcript): Set[VariantCoord] = {
+    (for {
+      f <- AminoAcid.All.get(from)
+      t <- AminoAcid.All.get(to)
+    } yield aminoAcid(pos, f, t, transcript)).getOrElse(Set())
+  }
+
+  def aminoAcid(
+    pos: Int,
     from: AminoAcid,
     to: AminoAcid,
     transcript: Transcript): Set[VariantCoord] = {
@@ -37,6 +59,26 @@ case class MutationTracer(gene: Gene) {
     } yield to.codons.flatMap(VariantBuilder.build(triple, _, strand))
 
     variants.getOrElse(Set())
+  }
+
+  def aminoAcid(
+    pos: Int,
+    from: Char,
+    to: Char): Map[Transcript, Set[VariantCoord]] = {
+    (for {
+      f <- AminoAcid.BySingleLetter.get(from)
+      t <- AminoAcid.BySingleLetter.get(to)
+    } yield aminoAcid(pos, f, t)).getOrElse(Map())
+  }
+
+  def aminoAcid(
+    pos: Int,
+    from: AminoAcid.Code.Value,
+    to: AminoAcid.Code.Value): Map[Transcript, Set[VariantCoord]] = {
+    (for {
+      f <- AminoAcid.All.get(from)
+      t <- AminoAcid.All.get(to)
+    } yield aminoAcid(pos, f, t)).getOrElse(Map())
   }
 
   def aminoAcid(

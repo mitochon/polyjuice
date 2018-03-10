@@ -20,42 +20,33 @@ object VariantBuilder {
 
     val (f, s, t) = diff(triple.bases, target)
 
-    def isAfterBreak(basePick: Codon => Base, break: CodonBreak): Boolean = {
-      break.offset match {
-        case 1 => basePick == Codon.GetSecond || basePick == Codon.GetThird
-        case 2 => basePick == Codon.GetThird
-      }
+    def snv(basePick: Codon => Base, offset: Int, break: Option[CodonBreak]): Snv = {
+      val d = break.filter(b => offset >= b.offset).map(_.distance).getOrElse(0)
+      Snv(triple.contig, triple.pos + offset + d, basePick(triple.bases), basePick(target))
     }
 
-    def snv(basePick: Codon => Base, break: Option[CodonBreak]): Snv = {
-      val o = break.map(_.offset).getOrElse(0)
-      val d = break.filter(isAfterBreak(basePick, _)).map(_.distance).getOrElse(0)
-      Snv(triple.contig, triple.pos + o + d, basePick(triple.bases), basePick(target))
-    }
-
-    def mnv(basePick: Codon => Seq[Base], break: Option[CodonBreak]): Option[Mnv] = {
+    def mnv(basePick: Codon => Seq[Base], offset: Int, break: Option[CodonBreak]): Option[Mnv] = {
       if (break.isDefined && basePick == Codon.GetAll ||
         break.map(_.offset).exists(_ == 1 && basePick == Codon.GetFirstTwo) ||
         break.map(_.offset).exists(_ == 2 && basePick == Codon.GetLastTwo)) {
         None
       } else {
-        val o = break.map(_.offset).getOrElse(0)
-        val d = break.filter(_ => basePick == Codon.GetLastTwo).map(_.distance).getOrElse(0)
-        Some(Mnv(triple.contig, triple.pos + o + d, basePick(triple.bases), basePick(target)))
+        val d = break.filter(b => offset >= b.offset).map(_.distance).getOrElse(0)
+        Some(Mnv(triple.contig, triple.pos + offset + d, basePick(triple.bases), basePick(target)))
       }
     }
 
     diff(triple.bases, target) match {
       // 1-base change
-      case (1, 0, 0) => Some(snv(Codon.GetFirst, triple.break))
-      case (0, 1, 0) => Some(snv(Codon.GetSecond, triple.break))
-      case (0, 0, 1) => Some(snv(Codon.GetThird, triple.break))
+      case (1, 0, 0) => Some(snv(Codon.GetFirst, 0, triple.break))
+      case (0, 1, 0) => Some(snv(Codon.GetSecond, 1, triple.break))
+      case (0, 0, 1) => Some(snv(Codon.GetThird, 2, triple.break))
       // 2-base change
-      case (1, 1, 0) => mnv(Codon.GetFirstTwo, triple.break)
-      case (0, 1, 1) => mnv(Codon.GetLastTwo, triple.break)
+      case (1, 1, 0) => mnv(Codon.GetFirstTwo, 0, triple.break)
+      case (0, 1, 1) => mnv(Codon.GetLastTwo, 1, triple.break)
       // 3-base change
-      case (1, 0, 1) => mnv(Codon.GetAll, triple.break)
-      case (1, 1, 1) => mnv(Codon.GetAll, triple.break)
+      case (1, 0, 1) => mnv(Codon.GetAll, 0, triple.break)
+      case (1, 1, 1) => mnv(Codon.GetAll, 0, triple.break)
       case _         => None
     }
   }
