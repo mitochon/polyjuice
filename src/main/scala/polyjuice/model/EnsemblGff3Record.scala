@@ -8,7 +8,7 @@ case class EnsemblGff3Record(
   strand: Option[Strand.Value],
   attributes: Map[String, String]) {
 
-  def getParentTranscript: Option[String] = {
+  def getParentTranscript: Option[Transcript] = {
     attributes.get(EnsemblGff3Record.AttrParent)
       .map(_.stripPrefix(EnsemblGff3Record.AttrTranscriptPrefix))
   }

@@ -7,18 +7,18 @@ import java.util.zip.GZIPInputStream
 import scala.io.Source
 import scala.util.Try
 
-import polyjuice.model.{ EnsemblGff3Record, Exon, UTR }
+import polyjuice.model.{ EnsemblGff3Record, Exon, Transcript, UTR }
 
 object EnsemblGff3Reader {
 
   val CommentPrefix = "#"
   val ExonFeature = "exon"
 
-  def transcriptFilter(transcript: String): EnsemblGff3Record => Boolean = {
+  def transcriptFilter(transcript: Transcript): EnsemblGff3Record => Boolean = {
     (r: EnsemblGff3Record) => r.getParentTranscript.exists(_.equals(transcript))
   }
 
-  def transcriptFilter(transcripts: Set[String]): EnsemblGff3Record => Boolean = {
+  def transcriptFilter(transcripts: Set[Transcript]): EnsemblGff3Record => Boolean = {
     (r: EnsemblGff3Record) => r.getParentTranscript.exists(transcripts.contains)
   }
 

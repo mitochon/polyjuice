@@ -1,8 +1,8 @@
 package polyjuice.model
 
 case class EnsemblFastaHeaderRecord(
-  transcript: String,
-  geneSymbol: String,
+  transcript: Transcript,
+  geneSymbol: GeneSymbol,
   ensemblGeneId: String,
   genome: GenomeBuild.Value,
   strand: Strand.Value,

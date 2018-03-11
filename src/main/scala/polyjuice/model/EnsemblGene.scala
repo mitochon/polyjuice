@@ -1,8 +1,8 @@
 package polyjuice.model
 
 case class EnsemblGene(
-  gene: String,
-  transcript: String,
+  geneSymbol: GeneSymbol,
+  transcript: Transcript,
   chr: String,
   start: Int,
   end: Int,

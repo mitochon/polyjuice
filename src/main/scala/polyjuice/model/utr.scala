@@ -1,16 +1,16 @@
 package polyjuice.model
 
 sealed trait UTR {
-  def transcript: String
+  def transcript: Transcript
   def start: Int
   def end: Int
 
   val length = end - start + 1
 }
 
-case class UTR5(transcript: String, start: Int, end: Int) extends UTR
+case class UTR5(transcript: Transcript, start: Int, end: Int) extends UTR
 
-case class UTR3(transcript: String, start: Int, end: Int) extends UTR
+case class UTR3(transcript: Transcript, start: Int, end: Int) extends UTR
 
 object UTR {
 

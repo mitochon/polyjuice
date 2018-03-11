@@ -35,10 +35,10 @@ object EnsemblGeneReader {
   }
 
   def addUTR(gene: Gene, utr: UTR): Gene = {
-    def copyUTR(gene: EnsemblGene) = utr match {
-      case u5: UTR5 => gene.copy(utr5 = Some(u5))
-      case u3: UTR3 => gene.copy(utr3 = Some(u3))
-      case _        => gene
+    def copyUTR(g: EnsemblGene) = utr match {
+      case u5: UTR5 => g.copy(utr5 = Some(u5))
+      case u3: UTR3 => g.copy(utr3 = Some(u3))
+      case _        => g
     }
 
     gene.get(utr.transcript) match {
@@ -49,12 +49,21 @@ object EnsemblGeneReader {
 
   @throws[IOException]
   def getGene(
-    gene: String,
+    geneSymbol: GeneSymbol,
     cdsFastaPath: Path,
     gff3Path: Path): Either[GeneParseError, Gene] = {
 
+    get(Set(geneSymbol), cdsFastaPath, gff3Path).map(_.get(geneSymbol).getOrElse(emptyGene))
+  }
+
+  @throws[IOException]
+  def get(
+    genes: Set[GeneSymbol],
+    cdsFastaPath: Path,
+    gff3Path: Path): Either[GeneParseError, Map[GeneSymbol, Gene]] = {
+
     def readFasta: Seq[Line[EnsemblFastaHeaderRecord]] = {
-      EnsemblFastaReader.readHeaders(cdsFastaPath, _.geneSymbol.equals(gene), _.toList)
+      EnsemblFastaReader.readHeaders(cdsFastaPath, r => genes.contains(r.geneSymbol), _.toList)
     }
 
     def readGff3(transcripts: Set[String]): Seq[Line[EnsemblGff3Record]] = {
@@ -62,7 +71,7 @@ object EnsemblGeneReader {
         .transcriptFilter(transcripts), _.toList)
     }
 
-    def readBases(transcript: String): String = {
+    def readBases(transcript: Transcript): String = {
       EnsemblFastaReader.readFasta(cdsFastaPath, transcript).getBaseString
     }
 
@@ -105,7 +114,7 @@ object EnsemblGeneReader {
       val withTranscripts = fastaTranscripts.foldLeft(emptyGene)(addFastaHeader)
       val withExons = exons.flatMap(_.right.toOption).foldLeft(withTranscripts)(addExon)
       val withUTRs = utrs.flatMap(_.right.toOption).foldLeft(withExons)(addUTR)
-      Right(withUTRs)
+      Right(withUTRs.groupBy(_._2.geneSymbol))
     }
   }
 }

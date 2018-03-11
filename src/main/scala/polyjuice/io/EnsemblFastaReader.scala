@@ -7,7 +7,7 @@ import scala.io.{ BufferedSource, Source }
 import scala.util.Try
 
 import htsjdk.samtools.reference.{ IndexedFastaSequenceFile, ReferenceSequence }
-import polyjuice.model.EnsemblFastaHeaderRecord
+import polyjuice.model.{ EnsemblFastaHeaderRecord, Transcript }
 
 object EnsemblFastaReader {
 
@@ -31,7 +31,7 @@ object EnsemblFastaReader {
   }
 
   @throws[IOException]
-  def readFasta(fastaPath: Path, transcript: String): ReferenceSequence = {
+  def readFasta(fastaPath: Path, transcript: Transcript): ReferenceSequence = {
     var fa: IndexedFastaSequenceFile = null
     try {
       fa = new IndexedFastaSequenceFile(fastaPath)
