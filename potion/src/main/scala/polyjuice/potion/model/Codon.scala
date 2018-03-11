@@ -1,4 +1,4 @@
-package polyjuice.model
+package polyjuice.potion.model
 
 case class Codon(first: Base, second: Base, third: Base) {
   def bases: String = s"$first$second$third"

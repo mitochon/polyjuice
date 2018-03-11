@@ -1,9 +1,9 @@
-package polyjuice.tracer
+package polyjuice.potion.tracer
 
 import scala.util.Try
 import scala.util.control.Breaks._
 
-import polyjuice.model._
+import polyjuice.potion.model._
 
 case class CodingSequenceTracer(gene: Gene) {
   import CodingSequenceTracer._

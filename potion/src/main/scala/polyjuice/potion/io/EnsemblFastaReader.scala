@@ -1,4 +1,4 @@
-package polyjuice.io
+package polyjuice.potion.io
 
 import java.io.IOException
 import java.nio.file.Path
@@ -7,7 +7,7 @@ import scala.io.{ BufferedSource, Source }
 import scala.util.Try
 
 import htsjdk.samtools.reference.{ IndexedFastaSequenceFile, ReferenceSequence }
-import polyjuice.model.{ EnsemblFastaHeaderRecord, Transcript }
+import polyjuice.potion.model.{ EnsemblFastaHeaderRecord, Transcript }
 
 object EnsemblFastaReader {
 

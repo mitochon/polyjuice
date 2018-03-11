@@ -1,8 +1,8 @@
-package polyjuice.tracer
+package polyjuice.potion.tracer
 
 import scala.util.Try
 
-import polyjuice.model._
+import polyjuice.potion.model._
 
 case class CodonTracer(gene: Gene) {
   import CodonTracer._

@@ -1,4 +1,4 @@
-package polyjuice.io
+package polyjuice.potion.io
 
 import java.io.{ IOException, InputStream }
 import java.nio.file.{ Files, Path }
@@ -7,7 +7,7 @@ import java.util.zip.GZIPInputStream
 import scala.io.Source
 import scala.util.Try
 
-import polyjuice.model.{ EnsemblGff3Record, Exon, Transcript, UTR }
+import polyjuice.potion.model.{ EnsemblGff3Record, Exon, Transcript, UTR }
 
 object EnsemblGff3Reader {
 

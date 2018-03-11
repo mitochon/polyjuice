@@ -1,4 +1,4 @@
-package polyjuice.model
+package polyjuice.potion.model
 
 sealed trait UTR {
   def transcript: Transcript

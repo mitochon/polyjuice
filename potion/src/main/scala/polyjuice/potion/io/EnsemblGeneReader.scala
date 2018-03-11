@@ -1,9 +1,9 @@
-package polyjuice.io
+package polyjuice.potion.io
 
 import java.io.IOException
 import java.nio.file.Path
 
-import polyjuice.model._
+import polyjuice.potion.model._
 
 object EnsemblGeneReader {
 

@@ -1,4 +1,4 @@
-package polyjuice
+package polyjuice.potion
 
 package object io {
   type Line[A] = Either[Throwable, A]

@@ -1,4 +1,4 @@
-package polyjuice.model
+package polyjuice.potion.model
 
 case class EnsemblGene(
   geneSymbol: GeneSymbol,

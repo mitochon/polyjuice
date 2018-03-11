@@ -1,6 +1,6 @@
-package polyjuice.tracer
+package polyjuice.potion.tracer
 
-import polyjuice.model._
+import polyjuice.potion.model._
 
 object VariantBuilder {
 

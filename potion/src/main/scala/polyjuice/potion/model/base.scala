@@ -1,4 +1,4 @@
-package polyjuice.model
+package polyjuice.potion.model
 
 sealed trait Base {
   def letter: Char

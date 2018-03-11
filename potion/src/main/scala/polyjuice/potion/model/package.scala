@@ -1,4 +1,4 @@
-package polyjuice
+package polyjuice.potion
 
 package object model {
   type Transcript = String

@@ -1,8 +1,8 @@
-package polyjuice.tracer
+package polyjuice.potion.tracer
 
 import org.scalatest.{ FunSpec, Matchers }
 
-import polyjuice.model._
+import polyjuice.potion.model._
 
 class CodonTracerTest extends FunSpec with Matchers {
 

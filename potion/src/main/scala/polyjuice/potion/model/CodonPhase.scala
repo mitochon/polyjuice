@@ -1,4 +1,4 @@
-package polyjuice.model
+package polyjuice.potion.model
 
 object CodonPhase extends Enumeration {
   val _0 = Value("0")
