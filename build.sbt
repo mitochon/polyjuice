@@ -9,16 +9,26 @@ lazy val commonSettings = Seq(
 
 lazy val root = project
 	.in(file("."))
-	.aggregate(potion)
+	.aggregate(potion, phial)
 	.settings(
 		commonSettings,
-	    name := "polyjuice"
+		name := "polyjuice"
 	)
 
 lazy val potion = project
 	.in(file("potion"))
 	.settings(
-	    commonSettings,
-	    name := "polyjuice-potion",
-	    libraryDependencies += htsjdk
+		commonSettings,
+		name := "polyjuice-potion",
+		libraryDependencies += htsjdk
+	)
+
+lazy val phial = project
+	.in(file("phial"))
+	.dependsOn(potion)
+	.settings(
+		commonSettings,
+		name := "polyjuice-phial",
+		libraryDependencies ++= Seq(logback, typesafeConfig, typesafeLogging),
+		libraryDependencies ++= http4s
 	)
