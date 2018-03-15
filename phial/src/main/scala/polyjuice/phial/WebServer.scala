@@ -50,14 +50,19 @@ object WebServer extends StreamApp[IO] {
       Ok()
     case GET -> Root / "gene" / geneSymbol / "hgvs" / "p" / pname =>
       Ok()
+
     case GET -> Root / "transcript" / transcript =>
-      Ok()
-    case GET -> Root / "transcript" / transcript / "cds" / "pos" / pos =>
-      Ok()
-    case GET -> Root / "transcript" / transcript / "codon" / "pos" / pos =>
-      Ok()
-    case GET -> Root / "transcript" / transcript / "exon" / "pos" / pos =>
-      Ok()
+      api.getTranscript(transcript).fold(NotFound(transcript))(gene => Ok(gene.asJson))
+
+    case GET -> Root / "transcript" / transcript / "cds" / "pos" / IntVar(pos) =>
+      api.cdsPosTranscript(transcript, pos).fold(NotFound(transcript))(map => Ok(map.asJson))
+
+    case GET -> Root / "transcript" / transcript / "codon" / "pos" / IntVar(pos) =>
+      api.codonPosTranscript(transcript, pos).fold(NotFound(transcript))(map => Ok(map.asJson))
+
+    case GET -> Root / "transcript" / transcript / "exon" / "pos" / IntVar(num) =>
+      api.exonNumTranscript(transcript, num).fold(NotFound(transcript))(map => Ok(map.asJson))
+
     case GET -> Root / "transcript" / transcript / "hgvs" / "c" / cname =>
       Ok()
     case GET -> Root / "transcript" / transcript / "hgvs" / "p" / pname =>
