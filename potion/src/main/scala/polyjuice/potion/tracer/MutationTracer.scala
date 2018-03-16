@@ -8,87 +8,40 @@ case class MutationTracer(gene: Gene) {
   val cdsTracer = CodingSequenceTracer(gene)
   val codonTracer = CodonTracer(gene)
 
-  def cds(pos: Int, from: Base, to: Base, transcript: Transcript): Option[Snv] = {
+  def cds(sub: CdsSub, transcript: Transcript): Option[Snv] = {
     for {
       strand <- gene.get(transcript).map(_.strand)
-      single <- cdsTracer.coord(pos, transcript)
-      if checkMatch(single, from, strand)
-    } yield VariantBuilder.snv(single, to, strand)
+      single <- cdsTracer.coord(sub.pos, transcript)
+      if checkMatch(single, sub.from, strand)
+    } yield VariantBuilder.snv(single, sub.to, strand)
   }
 
-  def cds(pos: Int, from: Base, to: Base): Map[Transcript, Snv] = {
+  def cds(sub: CdsSub): Map[Transcript, Snv] = {
     for {
-      (transcript, single) <- cdsTracer.coord(pos)
+      (transcript, single) <- cdsTracer.coord(sub.pos)
       strand <- gene.get(transcript).map(_.strand)
-      if checkMatch(single, from, strand)
-    } yield (transcript, VariantBuilder.snv(single, to, strand))
+      if checkMatch(single, sub.from, strand)
+    } yield (transcript, VariantBuilder.snv(single, sub.to, strand))
   }
 
-  def aminoAcid(
-    pos: Int,
-    from: Char,
-    to: Char,
-    transcript: Transcript): Set[VariantCoord] = {
-    (for {
-      f <- AminoAcid.BySingleLetter.get(from)
-      t <- AminoAcid.BySingleLetter.get(to)
-    } yield aminoAcid(pos, f, t, transcript)).getOrElse(Set())
-  }
-
-  def aminoAcid(
-    pos: Int,
-    from: AminoAcid.Code.Value,
-    to: AminoAcid.Code.Value,
-    transcript: Transcript): Set[VariantCoord] = {
-    (for {
-      f <- AminoAcid.All.get(from)
-      t <- AminoAcid.All.get(to)
-    } yield aminoAcid(pos, f, t, transcript)).getOrElse(Set())
-  }
-
-  def aminoAcid(
-    pos: Int,
-    from: AminoAcid,
-    to: AminoAcid,
-    transcript: Transcript): Set[VariantCoord] = {
-
+  def aminoAcid(sub: ProteinSub, transcript: Transcript): Set[VariantCoord] = {
     val variants = for {
-      triple <- codonTracer.coord(pos, transcript)
+      triple <- codonTracer.coord(sub.pos, transcript)
       strand <- gene.get(transcript).map(_.strand)
+      from <- AminoAcid.All.get(sub.from)
+      to <- AminoAcid.All.get(sub.to)
       if checkMatch(triple, from, strand)
     } yield to.codons.flatMap(VariantBuilder.build(triple, _, strand))
 
     variants.getOrElse(Set())
   }
 
-  def aminoAcid(
-    pos: Int,
-    from: Char,
-    to: Char): Map[Transcript, Set[VariantCoord]] = {
-    (for {
-      f <- AminoAcid.BySingleLetter.get(from)
-      t <- AminoAcid.BySingleLetter.get(to)
-    } yield aminoAcid(pos, f, t)).getOrElse(Map())
-  }
-
-  def aminoAcid(
-    pos: Int,
-    from: AminoAcid.Code.Value,
-    to: AminoAcid.Code.Value): Map[Transcript, Set[VariantCoord]] = {
-    (for {
-      f <- AminoAcid.All.get(from)
-      t <- AminoAcid.All.get(to)
-    } yield aminoAcid(pos, f, t)).getOrElse(Map())
-  }
-
-  def aminoAcid(
-    pos: Int,
-    from: AminoAcid,
-    to: AminoAcid): Map[Transcript, Set[VariantCoord]] = {
-
+  def aminoAcid(sub: ProteinSub): Map[Transcript, Set[VariantCoord]] = {
     for {
-      (transcript, triple) <- codonTracer.coord(pos)
+      (transcript, triple) <- codonTracer.coord(sub.pos)
       strand <- gene.get(transcript).map(_.strand)
+      from <- AminoAcid.All.get(sub.from)
+      to <- AminoAcid.All.get(sub.to)
       if checkMatch(triple, from, strand)
     } yield (transcript, to.codons.flatMap(VariantBuilder.build(triple, _, strand)))
   }
