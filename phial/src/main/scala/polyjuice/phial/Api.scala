@@ -65,11 +65,42 @@ case class Api(genes: Map[GeneSymbol, Gene]) {
       e <- m.get(t)
     } yield e
   }
-  
+
+  def hgvsPName(hgvs: String, g: GeneSymbol): Option[Map[Transcript, Set[VariantCoord]]] = {
+    for {
+      p <- PNameParser.parse(hgvs)
+      m <- genes.get(g.toUpperCase).map(MutationTracer(_))
+    } yield m.aminoAcid(p)
+  }
+
+  def hgvsPNameTranscript(hgvs: String, t: Transcript): Option[Set[VariantCoord]] = {
+    for {
+      p <- PNameParser.parse(hgvs)
+      g <- transcripts.get(t)
+      m <- genes.get(g.toUpperCase).map(MutationTracer(_))
+    } yield m.aminoAcid(p, t)
+  }
+
+  def hgvsCName(hgvs: String, g: GeneSymbol): Option[Map[Transcript, Snv]] = {
+    for {
+      p <- CNameParser.parse(hgvs)
+      m <- genes.get(g.toUpperCase).map(MutationTracer(_))
+    } yield m.cds(p)
+  }
+
+  def hgvsCNameTranscript(hgvs: String, t: Transcript): Option[Snv] = {
+    for {
+      p <- CNameParser.parse(hgvs)
+      g <- transcripts.get(t)
+      m <- genes.get(g).map(MutationTracer(_))
+      s <- m.cds(p, t)
+    } yield s
+  }
+
   def hgvsPName(hgvs: String): Option[ProteinVariant] = {
     PNameParser.parse(hgvs)
   }
-  
+
   def hgvsCName(hgvs: String): Option[CdsVariant] = {
     CNameParser.parse(hgvs)
   }

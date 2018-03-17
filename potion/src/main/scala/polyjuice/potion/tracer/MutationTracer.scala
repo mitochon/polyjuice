@@ -24,6 +24,20 @@ case class MutationTracer(gene: Gene) {
     } yield (transcript, VariantBuilder.snv(single, sub.to, strand))
   }
 
+  def cds(cvar: CdsVariant, transcript: Transcript): Option[Snv] = {
+    cvar match {
+      case sub: CdsSub => cds(sub, transcript)
+      case _           => None
+    }
+  }
+
+  def cds(cvar: CdsVariant): Map[Transcript, Snv] = {
+    cvar match {
+      case sub: CdsSub => cds(sub)
+      case _           => Map()
+    }
+  }
+
   def aminoAcid(sub: ProteinSub, transcript: Transcript): Set[VariantCoord] = {
     val variants = for {
       triple <- codonTracer.coord(sub.pos, transcript)
@@ -44,6 +58,20 @@ case class MutationTracer(gene: Gene) {
       to <- AminoAcid.ByCode.get(sub.to)
       if checkMatch(triple, from, strand)
     } yield (transcript, to.codons.flatMap(VariantBuilder.build(triple, _, strand)))
+  }
+
+  def aminoAcid(pvar: ProteinVariant, transcript: Transcript): Set[VariantCoord] = {
+    pvar match {
+      case sub: ProteinSub => aminoAcid(sub, transcript)
+      case _               => Set()
+    }
+  }
+
+  def aminoAcid(pvar: ProteinVariant): Map[Transcript, Set[VariantCoord]] = {
+    pvar match {
+      case sub: ProteinSub => aminoAcid(sub)
+      case _               => Map()
+    }
   }
 }
 

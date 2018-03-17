@@ -48,9 +48,10 @@ object WebServer extends StreamApp[IO] {
       api.exonNum(geneSymbol, num).fold(NotFound(geneSymbol))(map => Ok(map.asJson))
 
     case GET -> Root / "gene" / geneSymbol / "hgvs" / "c" / cname =>
-      Ok()
+      api.hgvsCName(cname, geneSymbol).fold(NotFound(geneSymbol))(map => Ok(map.asJson))
+
     case GET -> Root / "gene" / geneSymbol / "hgvs" / "p" / pname =>
-      Ok()
+      api.hgvsPName(pname, geneSymbol).fold(NotFound(geneSymbol))(map => Ok(map.asJson))
 
     case GET -> Root / "transcript" / transcript =>
       api.getTranscript(transcript).fold(NotFound(transcript))(gene => Ok(gene.asJson))
@@ -65,9 +66,10 @@ object WebServer extends StreamApp[IO] {
       api.exonNumTranscript(transcript, num).fold(NotFound(transcript))(exon => Ok(exon.asJson))
 
     case GET -> Root / "transcript" / transcript / "hgvs" / "c" / cname =>
-      Ok()
+      api.hgvsCNameTranscript(cname, transcript).fold(NotFound(transcript))(snv => Ok(snv.asJson))
+
     case GET -> Root / "transcript" / transcript / "hgvs" / "p" / pname =>
-      Ok()
+      api.hgvsPNameTranscript(pname, transcript).fold(NotFound(transcript))(set => Ok(set.asJson))
 
     case GET -> Root / "hgvs" / "p" / pname =>
       api.hgvsPName(pname).fold(NotFound(pname))(p => Ok(p.asJson))
