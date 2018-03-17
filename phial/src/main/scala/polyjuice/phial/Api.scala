@@ -23,7 +23,7 @@ case class Api(genes: Map[GeneSymbol, Gene]) {
   }
 
   def getGene(g: GeneSymbol): Option[Gene] = {
-    genes.get(g.toUpperCase)
+    genes.get(g)
   }
 
   def getTranscript(t: Transcript): Option[Gene] = {
@@ -31,15 +31,15 @@ case class Api(genes: Map[GeneSymbol, Gene]) {
   }
 
   def cdsPos(g: GeneSymbol, pos: Int): Option[Map[Transcript, Base]] = {
-    genes.get(g.toUpperCase).map(CodingSequenceTracer(_).cds(pos))
+    genes.get(g).map(CodingSequenceTracer(_).cds(pos))
   }
 
   def codonPos(g: GeneSymbol, pos: Int): Option[Map[Transcript, Codon]] = {
-    genes.get(g.toUpperCase).map(CodonTracer(_).codon(pos))
+    genes.get(g).map(CodonTracer(_).codon(pos))
   }
 
   def exonNum(g: GeneSymbol, num: Int): Option[Map[Transcript, Exon]] = {
-    genes.get(g.toUpperCase).map(ExonTracer(_).exon(num))
+    genes.get(g).map(ExonTracer(_).exon(num))
   }
 
   def cdsPosTranscript(t: Transcript, pos: Int): Option[Base] = {
@@ -69,7 +69,7 @@ case class Api(genes: Map[GeneSymbol, Gene]) {
   def hgvsPName(hgvs: String, g: GeneSymbol): Option[Map[Transcript, Set[VariantCoord]]] = {
     for {
       p <- PNameParser.parse(hgvs)
-      m <- genes.get(g.toUpperCase).map(MutationTracer(_))
+      m <- genes.get(g).map(MutationTracer(_))
     } yield m.aminoAcid(p)
   }
 
@@ -77,14 +77,14 @@ case class Api(genes: Map[GeneSymbol, Gene]) {
     for {
       p <- PNameParser.parse(hgvs)
       g <- transcripts.get(t)
-      m <- genes.get(g.toUpperCase).map(MutationTracer(_))
+      m <- genes.get(g).map(MutationTracer(_))
     } yield m.aminoAcid(p, t)
   }
 
   def hgvsCName(hgvs: String, g: GeneSymbol): Option[Map[Transcript, Snv]] = {
     for {
       p <- CNameParser.parse(hgvs)
-      m <- genes.get(g.toUpperCase).map(MutationTracer(_))
+      m <- genes.get(g).map(MutationTracer(_))
     } yield m.cds(p)
   }
 
