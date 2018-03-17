@@ -12,4 +12,4 @@ case class CdsInv(start: Int, end: Int) extends CdsVariant
 
 case class CdsIns(start: Int, end: Int, bases: Seq[Base]) extends CdsVariant
 
-case class CdsDelIns(start: Int, end: Int, bases: Seq[Base]) extends CdsVariant
+case class CdsDelIns(start: Int, end: Option[Int], bases: Seq[Base]) extends CdsVariant
