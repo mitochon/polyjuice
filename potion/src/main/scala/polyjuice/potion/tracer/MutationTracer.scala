@@ -28,8 +28,8 @@ case class MutationTracer(gene: Gene) {
     val variants = for {
       triple <- codonTracer.coord(sub.pos, transcript)
       strand <- gene.get(transcript).map(_.strand)
-      from <- AminoAcid.All.get(sub.from)
-      to <- AminoAcid.All.get(sub.to)
+      from <- AminoAcid.ByCode.get(sub.from)
+      to <- AminoAcid.ByCode.get(sub.to)
       if checkMatch(triple, from, strand)
     } yield to.codons.flatMap(VariantBuilder.build(triple, _, strand))
 
@@ -40,8 +40,8 @@ case class MutationTracer(gene: Gene) {
     for {
       (transcript, triple) <- codonTracer.coord(sub.pos)
       strand <- gene.get(transcript).map(_.strand)
-      from <- AminoAcid.All.get(sub.from)
-      to <- AminoAcid.All.get(sub.to)
+      from <- AminoAcid.ByCode.get(sub.from)
+      to <- AminoAcid.ByCode.get(sub.to)
       if checkMatch(triple, from, strand)
     } yield (transcript, to.codons.flatMap(VariantBuilder.build(triple, _, strand)))
   }

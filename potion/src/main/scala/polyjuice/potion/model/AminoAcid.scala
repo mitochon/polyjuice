@@ -9,10 +9,10 @@ case class AminoAcid(
 object AminoAcid {
 
   object Code extends Enumeration {
-    val Ile, Leu, Val, Phe, Met, Cys, Ala, Gly, Pro, Thr, Ser, Tyr, Trp, Gln, Asn, His, Glu, Asp, Lys, Arg = Value
+    val Ile, Leu, Val, Phe, Met, Cys, Ala, Gly, Pro, Thr, Ser, Tyr, Trp, Gln, Asn, His, Glu, Asp, Lys, Arg, Ter = Value
   }
 
-  val All = Map(
+  val ByCode = Map(
     Code.Ile -> AminoAcid(Code.Ile, 'I', "Isoleucine", Set("ATT", "ATC", "ATA").map(Codon(_))),
     Code.Leu -> AminoAcid(Code.Leu, 'L', "Leucine", Set("CTT", "CTC", "CTA", "CTG", "TTA", "TTG").map(Codon(_))),
     Code.Val -> AminoAcid(Code.Val, 'V', "Valine", Set("GTT", "GTC", "GTA", "GTG").map(Codon(_))),
@@ -32,11 +32,10 @@ object AminoAcid {
     Code.Glu -> AminoAcid(Code.Glu, 'E', "Glutamic acid", Set("GAA", "GAG").map(Codon(_))),
     Code.Asp -> AminoAcid(Code.Asp, 'D', "Aspartic acid", Set("GAT", "GAC").map(Codon(_))),
     Code.Lys -> AminoAcid(Code.Lys, 'K', "Lysine", Set("AAA", "AAG").map(Codon(_))),
-    Code.Arg -> AminoAcid(Code.Arg, 'R', "Arginine", Set("CGT", "CGC", "CGA", "CGG", "AGA", "AGG").map(Codon(_))))
+    Code.Arg -> AminoAcid(Code.Arg, 'R', "Arginine", Set("CGT", "CGC", "CGA", "CGG", "AGA", "AGG").map(Codon(_))),
+    Code.Ter -> AminoAcid(Code.Ter, '*', "Stop", Codon.Stops.toSet))
 
-  val ByCode = All.values.map(aa => (aa.code, aa)).toMap
+  val BySingleLetter = ByCode.values.map(aa => (aa.letter, aa)).toMap
 
-  val BySingleLetter = All.values.map(aa => (aa.letter, aa)).toMap
-
-  val ByCodon = All.values.flatMap(aa => aa.codons.map((_, aa))).toMap
+  val ByCodon = ByCode.values.flatMap(aa => aa.codons.map((_, aa))).toMap
 }
