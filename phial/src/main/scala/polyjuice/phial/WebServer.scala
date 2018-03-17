@@ -24,6 +24,7 @@ object WebServer extends StreamApp[IO] {
   // enum encoder
   implicit val strandEncoder = Encoder.enumEncoder(Strand)
   implicit val codonPhaseEncoder = Encoder.enumEncoder(CodonPhase)
+  implicit val aminoAcidCodeEncoder = Encoder.enumEncoder(AminoAcid.Code)
 
   // custom encoder
   implicit val baseEncoder = new Encoder[Base] {
@@ -55,18 +56,24 @@ object WebServer extends StreamApp[IO] {
       api.getTranscript(transcript).fold(NotFound(transcript))(gene => Ok(gene.asJson))
 
     case GET -> Root / "transcript" / transcript / "cds" / "pos" / IntVar(pos) =>
-      api.cdsPosTranscript(transcript, pos).fold(NotFound(transcript))(map => Ok(map.asJson))
+      api.cdsPosTranscript(transcript, pos).fold(NotFound(transcript))(base => Ok(base.asJson))
 
     case GET -> Root / "transcript" / transcript / "codon" / "pos" / IntVar(pos) =>
-      api.codonPosTranscript(transcript, pos).fold(NotFound(transcript))(map => Ok(map.asJson))
+      api.codonPosTranscript(transcript, pos).fold(NotFound(transcript))(codon => Ok(codon.asJson))
 
     case GET -> Root / "transcript" / transcript / "exon" / "pos" / IntVar(num) =>
-      api.exonNumTranscript(transcript, num).fold(NotFound(transcript))(map => Ok(map.asJson))
+      api.exonNumTranscript(transcript, num).fold(NotFound(transcript))(exon => Ok(exon.asJson))
 
     case GET -> Root / "transcript" / transcript / "hgvs" / "c" / cname =>
       Ok()
     case GET -> Root / "transcript" / transcript / "hgvs" / "p" / pname =>
       Ok()
+
+    case GET -> Root / "hgvs" / "p" / pname =>
+      api.hgvsPName(pname).fold(NotFound(pname))(p => Ok(p.asJson))
+
+    case GET -> Root / "hgvs" / "c" / cname =>
+      api.hgvsCName(cname).fold(NotFound(cname))(c => Ok(c.asJson))
   }
 
   override def stream(args: List[String], requestShutdown: IO[Unit]): Stream[IO, ExitCode] =

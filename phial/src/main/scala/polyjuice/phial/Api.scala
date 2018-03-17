@@ -1,6 +1,7 @@
 package polyjuice.phial
 
 import polyjuice.potion.model._
+import polyjuice.potion.parser._
 import polyjuice.potion.tracer._
 
 case class Api(genes: Map[GeneSymbol, Gene]) {
@@ -63,5 +64,13 @@ case class Api(genes: Map[GeneSymbol, Gene]) {
       m <- exonNum(g, num)
       e <- m.get(t)
     } yield e
+  }
+  
+  def hgvsPName(hgvs: String): Option[ProteinVariant] = {
+    PNameParser.parse(hgvs)
+  }
+  
+  def hgvsCName(hgvs: String): Option[CdsVariant] = {
+    CNameParser.parse(hgvs)
   }
 }
