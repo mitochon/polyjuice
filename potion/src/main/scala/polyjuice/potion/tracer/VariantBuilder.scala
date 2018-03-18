@@ -11,6 +11,13 @@ object VariantBuilder {
     }
   }
 
+  def ins(single: Single, bases: Seq[Base], strand: Strand.Value = Strand.Plus): Ins = {
+    strand match {
+      case Strand.Plus  => Ins(single.contig, single.pos, Some(single.base), single.base +: bases)
+      case Strand.Minus => Ins(single.contig, single.pos, Some(single.base), single.base +: bases)
+    }
+  }
+
   def build(triple: Triple, codon: Codon, strand: Strand.Value): Option[VariantCoord] = {
 
     val target = strand match {

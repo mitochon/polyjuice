@@ -81,19 +81,19 @@ case class Api(genes: Map[GeneSymbol, Gene]) {
     } yield m.aminoAcid(p, t)
   }
 
-  def hgvsCName(hgvs: String, g: GeneSymbol): Option[Map[Transcript, Snv]] = {
+  def hgvsCName(hgvs: String, g: GeneSymbol): Option[Map[Transcript, VariantCoord]] = {
     for {
-      p <- CNameParser.parse(hgvs)
+      c <- CNameParser.parse(hgvs)
       m <- genes.get(g).map(CdsVariantTracer(_))
-    } yield m.cds(p)
+    } yield m.cds(c)
   }
 
-  def hgvsCNameTranscript(hgvs: String, t: Transcript): Option[Snv] = {
+  def hgvsCNameTranscript(hgvs: String, t: Transcript): Option[VariantCoord] = {
     for {
-      p <- CNameParser.parse(hgvs)
+      c <- CNameParser.parse(hgvs)
       g <- transcripts.get(t)
       m <- genes.get(g).map(CdsVariantTracer(_))
-      s <- m.cds(p, t)
+      s <- m.cds(c, t)
     } yield s
   }
 

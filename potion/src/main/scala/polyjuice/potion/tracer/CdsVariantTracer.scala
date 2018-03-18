@@ -23,16 +23,32 @@ case class CdsVariantTracer(gene: Gene) {
     } yield (transcript, VariantBuilder.snv(single, sub.to, strand))
   }
 
-  def cds(cvar: CdsVariant, transcript: Transcript): Option[Snv] = {
+  def cds(ins: CdsIns, transcript: Transcript): Option[Ins] = {
+    for {
+      strand <- gene.get(transcript).map(_.strand)
+      single <- cdsTracer.coord(ins.start, transcript)
+    } yield VariantBuilder.ins(single, ins.bases, strand)
+  }
+
+  def cds(ins: CdsIns): Map[Transcript, Ins] = {
+    for {
+      (transcript, single) <- cdsTracer.coord(ins.start)
+      strand <- gene.get(transcript).map(_.strand)
+    } yield (transcript, VariantBuilder.ins(single, ins.bases, strand))
+  }
+
+  def cds(cvar: CdsVariant, transcript: Transcript): Option[VariantCoord] = {
     cvar match {
       case sub: CdsSub => cds(sub, transcript)
+      case ins: CdsIns => cds(ins, transcript)
       case _           => None
     }
   }
 
-  def cds(cvar: CdsVariant): Map[Transcript, Snv] = {
+  def cds(cvar: CdsVariant): Map[Transcript, VariantCoord] = {
     cvar match {
       case sub: CdsSub => cds(sub)
+      case ins: CdsIns => cds(ins)
       case _           => Map()
     }
   }
