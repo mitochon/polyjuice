@@ -13,14 +13,18 @@ class CNameParserTest extends FunSpec with Matchers {
     }
 
     it("parses deletion") {
-      CNameParser.parse("c.123del").get shouldEqual CdsDel(123, None)
-      CNameParser.parse("123_134del").get shouldEqual CdsDel(123, Some(134))
+      CNameParser.parse("c.123del").get shouldEqual CdsDel(123, None, None)
+      CNameParser.parse("c.123delT").get shouldEqual CdsDel(123, None, Some(Seq(Base.T)))
+      CNameParser.parse("123_134del").get shouldEqual CdsDel(123, Some(134), None)
+      CNameParser.parse("123_134delAC").get shouldEqual CdsDel(123, Some(134), Some(Seq(Base.A, Base.C)))
       CNameParser.parse("c.123_123del") shouldEqual None
     }
 
     it("parses duplication") {
-      CNameParser.parse("c.123dup").get shouldEqual CdsDup(123, None)
-      CNameParser.parse("123_134dup").get shouldEqual CdsDup(123, Some(134))
+      CNameParser.parse("c.123dup").get shouldEqual CdsDup(123, None, None)
+      CNameParser.parse("c.123dupA").get shouldEqual CdsDup(123, None, Some(Seq(Base.A)))
+      CNameParser.parse("123_134dup").get shouldEqual CdsDup(123, Some(134), None)
+      CNameParser.parse("123_134dupCG").get shouldEqual CdsDup(123, Some(134), Some(Seq(Base.C, Base.G)))
     }
 
     it("parses inversion") {

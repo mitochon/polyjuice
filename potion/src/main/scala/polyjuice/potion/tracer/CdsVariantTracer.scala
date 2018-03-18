@@ -39,10 +39,37 @@ case class CdsVariantTracer(gene: Gene) {
     } yield (transcript, VariantBuilder.ins(start, end, ins.bases, strand))
   }
 
+  def cds(del: CdsDel, transcript: Transcript): Option[Del] = {
+    val end = del.end.getOrElse(del.start)
+    val windowSize = 1 + end - del.start
+
+    for {
+      g <- gene.get(transcript)
+      leftFlank <- cdsTracer.coord(del.start - 1, transcript)
+      rightFlank <- cdsTracer.coord(end + 1, transcript)
+      bases <- CodingSequenceTracer.lookup(g, del.start, windowSize)
+      if (del.bases.isEmpty || del.bases.contains(bases))
+    } yield VariantBuilder.del(leftFlank, rightFlank, bases, g.strand)
+  }
+
+  def cds(del: CdsDel): Map[Transcript, Del] = {
+    val end = del.end.getOrElse(del.start)
+    val windowSize = 1 + end - del.start
+
+    for {
+      (transcript, leftFlank) <- cdsTracer.coord(del.start - 1)
+      rightFlank <- cdsTracer.coord(end + 1, transcript)
+      g <- gene.get(transcript)
+      bases <- CodingSequenceTracer.lookup(g, del.start, windowSize)
+      if (del.bases.isEmpty || del.bases.contains(bases))
+    } yield (transcript, VariantBuilder.del(leftFlank, rightFlank, bases, g.strand))
+  }
+
   def cds(cvar: CdsVariant, transcript: Transcript): Option[VariantCoord] = {
     cvar match {
       case sub: CdsSub => cds(sub, transcript)
       case ins: CdsIns => cds(ins, transcript)
+      case del: CdsDel => cds(del, transcript)
       case _           => None
     }
   }
@@ -51,6 +78,7 @@ case class CdsVariantTracer(gene: Gene) {
     cvar match {
       case sub: CdsSub => cds(sub)
       case ins: CdsIns => cds(ins)
+      case del: CdsDel => cds(del)
       case _           => Map()
     }
   }

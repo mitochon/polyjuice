@@ -82,4 +82,9 @@ object CodingSequenceTracer {
     val base = g.codingSequence.drop(pos - 1).take(1)
     if (base.isEmpty) None else Try(Base(base(0))).toOption
   }
+
+  def lookup(g: EnsemblGene, pos: Int, windowSize: Int): Option[Seq[Base]] = {
+    val bases = g.codingSequence.drop(pos - 1).take(windowSize)
+    if (bases.isEmpty) None else Try(bases.map(Base(_))).toOption
+  }
 }

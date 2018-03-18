@@ -18,6 +18,13 @@ object VariantBuilder {
     }
   }
 
+  def del(leftFlank: Single, rightFlank: Single, bases: Seq[Base], strand: Strand.Value = Strand.Plus): Del = {
+    strand match {
+      case Strand.Plus  => Del(leftFlank.contig, leftFlank.pos, leftFlank.base +: bases, Some(leftFlank.base))
+      case Strand.Minus => Del(rightFlank.contig, rightFlank.pos, rightFlank.base +: Base.flip(bases), Some(rightFlank.base))
+    }
+  }
+
   def build(triple: Triple, codon: Codon, strand: Strand.Value): Option[VariantCoord] = {
 
     val target = strand match {
@@ -25,6 +32,7 @@ object VariantBuilder {
       case Strand.Minus => codon.flip
     }
 
+    // compare first, second, and third base of the codon
     val (f, s, t) = diff(triple.bases, target)
 
     def snv(basePick: Codon => Base, offset: Int, break: Option[CodonBreak]): Snv = {
