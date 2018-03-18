@@ -25,6 +25,20 @@ object VariantBuilder {
     }
   }
 
+  def dup(start: Single, end: Single, bases: Seq[Base], strand: Strand.Value = Strand.Plus): Ins = {
+    strand match {
+      case Strand.Plus  => Ins(end.contig, end.pos, Some(end.base), end.base +: bases)
+      case Strand.Minus => Ins(start.contig, start.pos, Some(start.base), start.base +: Base.flip(bases))
+    }
+  }
+
+  def inv(start: Single, end: Single, bases: Seq[Base], strand: Strand.Value = Strand.Plus): Mnv = {
+    strand match {
+      case Strand.Plus  => Mnv(start.contig, start.pos, bases, Base.flip(bases))
+      case Strand.Minus => Mnv(end.contig, end.pos, Base.flip(bases), bases)
+    }
+  }
+
   def build(triple: Triple, codon: Codon, strand: Strand.Value): Option[VariantCoord] = {
 
     val target = strand match {
