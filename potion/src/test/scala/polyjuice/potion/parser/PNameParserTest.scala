@@ -32,6 +32,10 @@ class PNameParserTest extends FunSpec with Matchers {
       PNameParser.parse("Lys2_Gly3insGlnSerLys").get shouldEqual
         ProteinIns(2, Code.Lys, 3, Code.Gly, Seq(Code.Gln, Code.Ser, Code.Lys))
       PNameParser.parse("Lys2_Gly3insGlnSerLys") shouldEqual PNameParser.parse("p.K2_G3insQSK")
+
+      PNameParser.parse("Met3_His4insGlyTer").get shouldEqual
+        ProteinIns(3, Code.Met, 4, Code.His, Seq(Code.Gly, Code.Ter))
+      PNameParser.parse("Met3_His4insGlyTer") shouldEqual PNameParser.parse("M3_H4insG*")
     }
 
     it("parses indel") {

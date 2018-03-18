@@ -24,21 +24,21 @@ object PNameParser {
   val rProteinDelInsSingle = """(?:p\.)?([A-V][a-z][a-z])([\d]+)delins(([A-V][a-z][a-z])+)""".r
 
   // e.g. p.T790M
-  val rProteinSubLetter = """(?:p\.)?([A-Y])([\d]+)([A-Y])""".r
+  val rProteinSubLetter = """(?:p\.)?([A-Y\*])([\d]+)([A-Y\*])""".r
   // e.g. p.A3_S5del
-  val rProteinDelLetter = """(?:p\.)?([A-Y])([\d]+)_([A-Y])([\d]+)del""".r
+  val rProteinDelLetter = """(?:p\.)?([A-Y\*])([\d]+)_([A-Y\*])([\d]+)del""".r
   // e.g. p.A3_S5dup
-  val rProteinDupLetter = """(?:p\.)?([A-Y])([\d]+)_([A-Y])([\d]+)dup""".r
+  val rProteinDupLetter = """(?:p\.)?([A-Y\*])([\d]+)_([A-Y\*])([\d]+)dup""".r
   // e.g. p.A3del
-  val rProteinDelSingleLetter = """(?:p\.)?([A-Y])([\d]+)del""".r
+  val rProteinDelSingleLetter = """(?:p\.)?([A-Y\*])([\d]+)del""".r
   // e.g. p.A3dup
-  val rProteinDupSingleLetter = """(?:p\.)?([A-Y])([\d]+)dup""".r
+  val rProteinDupSingleLetter = """(?:p\.)?([A-Y\*])([\d]+)dup""".r
   // e.g. p.K2_G3insQSK
-  val rProteinInsLetter = """(?:p\.)?([A-Y])([\d]+)_([A-Y])([\d]+)ins([A-Y]+)""".r
+  val rProteinInsLetter = """(?:p\.)?([A-Y\*])([\d]+)_([A-Y\*])([\d]+)ins([A-Y\*]+)""".r
   // e.g. p.C28_K29delinsW
-  val rProteinDelInsLetter = """(?:p\.)?([A-Y])([\d]+)_([A-Y])([\d]+)delins([A-Y]+)""".r
+  val rProteinDelInsLetter = """(?:p\.)?([A-Y\*])([\d]+)_([A-Y\*])([\d]+)delins([A-Y\*]+)""".r
   // e.g. p.C28delinsWV
-  val rProteinDelInsSingleLetter = """(?:p\.)?([A-Y])([\d]+)delins([A-Y]+)""".r
+  val rProteinDelInsSingleLetter = """(?:p\.)?([A-Y\*])([\d]+)delins([A-Y\*]+)""".r
 
   // conversion functions
   type AABuilder = String => AminoAcid.Code.Value
