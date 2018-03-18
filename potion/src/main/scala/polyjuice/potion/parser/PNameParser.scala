@@ -51,7 +51,7 @@ object PNameParser {
   @throws[Exception]
   val aaSeqFromCode: AASeqBuilder = (seq: String) => seq.sliding(3, 3).map(aaFromCode).toList
   @throws[Exception]
-  val aaSeqFromLetter: AASeqBuilder = (seq: String) => seq.map(AminoAcid.BySingleLetter.get).flatMap(_.map(_.code))
+  val aaSeqFromLetter: AASeqBuilder = (seq: String) => seq.map(AminoAcid.BySingleLetter.get).map(_.get).map(_.code)
 
   def proteinSub(
     pos: String,
