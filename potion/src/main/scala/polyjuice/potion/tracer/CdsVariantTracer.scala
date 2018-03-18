@@ -40,13 +40,13 @@ case class CdsVariantTracer(gene: Gene) {
   }
 
   def cds(del: CdsDel, transcript: Transcript): Option[Del] = {
-    val end = del.end.getOrElse(del.start)
-    val windowSize = 1 + end - del.start
+    val endPos = del.end.getOrElse(del.start)
+    val windowSize = 1 + endPos - del.start
 
     for {
       g <- gene.get(transcript)
       leftFlank <- cdsTracer.coord(del.start - 1, transcript)
-      rightFlank <- cdsTracer.coord(end + 1, transcript)
+      rightFlank <- cdsTracer.coord(endPos + 1, transcript)
       bases <- CodingSequenceTracer.lookup(g, del.start, windowSize)
       if (del.bases.isEmpty || del.bases.contains(bases))
     } yield VariantBuilder.del(leftFlank, rightFlank, bases, g.strand)
@@ -113,25 +113,51 @@ case class CdsVariantTracer(gene: Gene) {
     } yield (transcript, VariantBuilder.inv(start, end, bases, g.strand))
   }
 
+  def cds(delins: CdsDelIns, transcript: Transcript): Option[VariantCoord] = {
+    val endPos = delins.end.getOrElse(delins.start)
+    val windowSize = 1 + endPos - delins.start
+
+    for {
+      g <- gene.get(transcript)
+      start <- cdsTracer.coord(delins.start, transcript)
+      end <- cdsTracer.coord(endPos, transcript)
+      bases <- CodingSequenceTracer.lookup(g, delins.start, windowSize)
+    } yield VariantBuilder.delins(start, end, bases, delins.bases, g.strand)
+  }
+
+  def cds(delins: CdsDelIns): Map[Transcript, VariantCoord] = {
+    val endPos = delins.end.getOrElse(delins.start)
+    val windowSize = 1 + endPos - delins.start
+
+    for {
+      (transcript, start) <- cdsTracer.coord(delins.start)
+      end <- cdsTracer.coord(endPos, transcript)
+      g <- gene.get(transcript)
+      bases <- CodingSequenceTracer.lookup(g, delins.start, windowSize)
+    } yield (transcript, VariantBuilder.delins(start, end, bases, delins.bases, g.strand))
+  }
+
   def cds(cvar: CdsVariant, transcript: Transcript): Option[VariantCoord] = {
     cvar match {
-      case sub: CdsSub => cds(sub, transcript)
-      case ins: CdsIns => cds(ins, transcript)
-      case del: CdsDel => cds(del, transcript)
-      case dup: CdsDup => cds(dup, transcript)
-      case inv: CdsInv => cds(inv, transcript)
-      case _           => None
+      case sub: CdsSub       => cds(sub, transcript)
+      case ins: CdsIns       => cds(ins, transcript)
+      case del: CdsDel       => cds(del, transcript)
+      case dup: CdsDup       => cds(dup, transcript)
+      case inv: CdsInv       => cds(inv, transcript)
+      case delins: CdsDelIns => cds(delins, transcript)
+      case _                 => None
     }
   }
 
   def cds(cvar: CdsVariant): Map[Transcript, VariantCoord] = {
     cvar match {
-      case sub: CdsSub => cds(sub)
-      case ins: CdsIns => cds(ins)
-      case del: CdsDel => cds(del)
-      case dup: CdsDup => cds(dup)
-      case inv: CdsInv => cds(inv)
-      case _           => Map()
+      case sub: CdsSub       => cds(sub)
+      case ins: CdsIns       => cds(ins)
+      case del: CdsDel       => cds(del)
+      case dup: CdsDup       => cds(dup)
+      case inv: CdsInv       => cds(inv)
+      case delins: CdsDelIns => cds(delins)
+      case _                 => Map()
     }
   }
 }

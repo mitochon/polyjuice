@@ -39,6 +39,20 @@ object VariantBuilder {
     }
   }
 
+  def delins(start: Single, end: Single, delbases: Seq[Base], insbases: Seq[Base], strand: Strand.Value = Strand.Plus): VariantCoord = {
+    if (delbases.length == insbases.length) {
+      strand match {
+        case Strand.Plus  => Mnv(start.contig, start.pos, delbases, insbases)
+        case Strand.Minus => Mnv(end.contig, end.pos, Base.flip(delbases), Base.flip(insbases))
+      }
+    } else {
+      strand match {
+        case Strand.Plus  => Complex(start.contig, start.pos, delbases, insbases)
+        case Strand.Minus => Complex(end.contig, end.pos, Base.flip(delbases), Base.flip(insbases))
+      }
+    }
+  }
+
   def build(triple: Triple, codon: Codon, strand: Strand.Value): Option[VariantCoord] = {
 
     val target = strand match {
