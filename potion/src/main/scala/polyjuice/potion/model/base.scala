@@ -33,6 +33,10 @@ object Base {
     override val complement: Base = N
   }
 
+  def flip(xs: Seq[Base]): Seq[Base] = {
+    xs.reverse.map(_.complement)
+  }
+
   @throws[Exception]
   def apply(base: Char): Base = {
     base match {

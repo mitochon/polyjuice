@@ -11,10 +11,10 @@ object VariantBuilder {
     }
   }
 
-  def ins(single: Single, bases: Seq[Base], strand: Strand.Value = Strand.Plus): Ins = {
+  def ins(start: Single, end: Single, bases: Seq[Base], strand: Strand.Value = Strand.Plus): Ins = {
     strand match {
-      case Strand.Plus  => Ins(single.contig, single.pos, Some(single.base), single.base +: bases)
-      case Strand.Minus => Ins(single.contig, single.pos, Some(single.base), single.base +: bases)
+      case Strand.Plus  => Ins(start.contig, start.pos, Some(start.base), start.base +: bases)
+      case Strand.Minus => Ins(end.contig, end.pos, Some(end.base), end.base +: Base.flip(bases))
     }
   }
 

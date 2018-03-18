@@ -26,15 +26,17 @@ case class CdsVariantTracer(gene: Gene) {
   def cds(ins: CdsIns, transcript: Transcript): Option[Ins] = {
     for {
       strand <- gene.get(transcript).map(_.strand)
-      single <- cdsTracer.coord(ins.start, transcript)
-    } yield VariantBuilder.ins(single, ins.bases, strand)
+      start <- cdsTracer.coord(ins.start, transcript)
+      end <- cdsTracer.coord(ins.end, transcript)
+    } yield VariantBuilder.ins(start, end, ins.bases, strand)
   }
 
   def cds(ins: CdsIns): Map[Transcript, Ins] = {
     for {
-      (transcript, single) <- cdsTracer.coord(ins.start)
+      (transcript, start) <- cdsTracer.coord(ins.start)
+      end <- cdsTracer.coord(ins.end, transcript)
       strand <- gene.get(transcript).map(_.strand)
-    } yield (transcript, VariantBuilder.ins(single, ins.bases, strand))
+    } yield (transcript, VariantBuilder.ins(start, end, ins.bases, strand))
   }
 
   def cds(cvar: CdsVariant, transcript: Transcript): Option[VariantCoord] = {
