@@ -8,7 +8,7 @@ object WebServerConfig {
 
   private[this] val config = ConfigFactory.load()
 
-  val GeneList = config.getString("geneList").split(",")
+  val GeneList = config.getString("geneList").split(',')
   
   val EnsemblBuild = config.getString("ensembl.build")
   val EnsemblCdsFastaPath = Paths.get(config.getString("ensembl.cdsFastaPath"))
