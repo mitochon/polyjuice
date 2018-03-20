@@ -19,8 +19,7 @@ lazy val potion = project
 	.in(file("potion"))
 	.settings(
 		commonSettings,
-		name := "polyjuice-potion",
-		libraryDependencies += htsjdk
+		name := "polyjuice-potion"
 	)
 
 lazy val phial = project

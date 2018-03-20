@@ -75,10 +75,6 @@ object EnsemblGeneReader {
         .transcriptFilter(transcripts), _.toList)
     }
 
-    def readBases(transcript: Transcript): String = {
-      EnsemblFastaReader.readFasta(cdsFastaPath, transcript).getBaseString
-    }
-
     def addFastaHeader(map: Map[Transcript, String])(
       gene: Gene,
       fastaHeader: EnsemblFastaHeaderRecord): Gene = {

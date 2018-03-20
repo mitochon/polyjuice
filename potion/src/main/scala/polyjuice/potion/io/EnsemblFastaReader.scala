@@ -6,7 +6,6 @@ import java.nio.file.Path
 import scala.io.{ BufferedSource, Source }
 import scala.util.Try
 
-import htsjdk.samtools.reference.{ IndexedFastaSequenceFile, ReferenceSequence }
 import polyjuice.potion.model.{ EnsemblFastaHeaderRecord, Transcript }
 
 object EnsemblFastaReader {
@@ -25,17 +24,6 @@ object EnsemblFastaReader {
         .map(line => Try(EnsemblFastaHeaderRecord(line)).toEither)
         .filter(lineFilter(_, filter)))
 
-    } finally {
-      if (fa != null) fa.close()
-    }
-  }
-
-  @throws[IOException]
-  def readFasta(fastaPath: Path, transcript: Transcript): ReferenceSequence = {
-    var fa: IndexedFastaSequenceFile = null
-    try {
-      fa = new IndexedFastaSequenceFile(fastaPath)
-      fa.getSequence(transcript)
     } finally {
       if (fa != null) fa.close()
     }
