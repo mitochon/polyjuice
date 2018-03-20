@@ -66,6 +66,10 @@ object EnsemblGeneReader {
       EnsemblFastaReader.readHeaders(cdsFastaPath, r => genes.contains(r.geneSymbol), _.toList)
     }
 
+    def readFastaContents(transcripts: Set[String]): Map[Transcript, String] = {
+      EnsemblFastaReader.readContents(cdsFastaPath, transcripts)
+    }
+
     def readGff3(transcripts: Set[String]): Seq[Line[EnsemblGff3Record]] = {
       EnsemblGff3Reader.readGff3(gff3Path, EnsemblGff3Reader
         .transcriptFilter(transcripts), _.toList)
@@ -75,24 +79,31 @@ object EnsemblGeneReader {
       EnsemblFastaReader.readFasta(cdsFastaPath, transcript).getBaseString
     }
 
-    def addFastaHeader(gene: Gene, fastaHeader: EnsemblFastaHeaderRecord): Gene = {
-      gene +
-        (removeTranscriptBuild(fastaHeader.transcript) ->
-          EnsemblGene(
-            fastaHeader.geneSymbol,
-            fastaHeader.transcript,
-            fastaHeader.contig,
-            fastaHeader.start,
-            fastaHeader.stop,
-            fastaHeader.strand,
-            None,
-            None,
-            IndexedSeq(),
-            readBases(fastaHeader.transcript)))
+    def addFastaHeader(map: Map[Transcript, String])(
+      gene: Gene,
+      fastaHeader: EnsemblFastaHeaderRecord): Gene = {
+
+      map.get(fastaHeader.transcript) match {
+        case None => gene
+        case Some(bases) => gene +
+          (removeTranscriptBuild(fastaHeader.transcript) ->
+            EnsemblGene(
+              fastaHeader.geneSymbol,
+              fastaHeader.transcript,
+              fastaHeader.contig,
+              fastaHeader.start,
+              fastaHeader.stop,
+              fastaHeader.strand,
+              None,
+              None,
+              IndexedSeq(),
+              bases))
+      }
     }
 
     val fastaLines = readFasta
     val fastaTranscripts = fastaLines.flatMap(_.right.toOption)
+    val fastaContents = readFastaContents(fastaTranscripts.map(_.transcript).toSet)
 
     val gff3Lines = readGff3(getTranscripts(fastaTranscripts))
     val gff3Records = gff3Lines.filter(_.isRight)
@@ -111,7 +122,7 @@ object EnsemblGeneReader {
 
     if (!parseError.isEmpty) Left(parseError)
     else {
-      val withTranscripts = fastaTranscripts.foldLeft(emptyGene)(addFastaHeader)
+      val withTranscripts = fastaTranscripts.foldLeft(emptyGene)(addFastaHeader(fastaContents))
       val withExons = exons.flatMap(_.right.toOption).foldLeft(withTranscripts)(addExon)
       val withUTRs = utrs.flatMap(_.right.toOption).foldLeft(withExons)(addUTR)
       Right(withUTRs.groupBy(_._2.geneSymbol))
