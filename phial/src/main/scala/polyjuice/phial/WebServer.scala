@@ -45,51 +45,57 @@ object WebServer extends StreamApp[IO] {
     }
   }
 
+  // helper functions
+  val isPName = (hgvs: String) => hgvs.startsWith("p.")
+  val isCName = (hgvs: String) => hgvs.startsWith("c.")
+
   val api = Api(Loader.init)
 
   val service = HttpService[IO] {
 
     case GET -> Root / "gene" / GeneSymbolVar(geneSymbol) =>
-      api.getGene(geneSymbol).fold(NotFound(geneSymbol))(gene => Ok(gene.asJson))
+      resp(geneSymbol, api.getGene(geneSymbol))
 
     case GET -> Root / "gene" / GeneSymbolVar(geneSymbol) / "cds" / "pos" / IntVar(pos) =>
-      api.cdsPos(geneSymbol, pos).fold(NotFound(geneSymbol))(map => Ok(map.asJson))
+      resp(geneSymbol, api.cdsPos(geneSymbol, pos))
 
     case GET -> Root / "gene" / GeneSymbolVar(geneSymbol) / "codon" / "pos" / IntVar(pos) =>
-      api.codonPos(geneSymbol, pos).fold(NotFound(geneSymbol))(map => Ok(map.asJson))
+      resp(geneSymbol, api.codonPos(geneSymbol, pos))
 
     case GET -> Root / "gene" / GeneSymbolVar(geneSymbol) / "exon" / "num" / IntVar(num) =>
-      api.exonNum(geneSymbol, num).fold(NotFound(geneSymbol))(map => Ok(map.asJson))
+      resp(geneSymbol, api.exonNum(geneSymbol, num))
 
-    case GET -> Root / "gene" / GeneSymbolVar(geneSymbol) / "hgvs" / "c" / cname =>
-      api.hgvsCName(cname, geneSymbol).fold(NotFound(geneSymbol))(map => Ok(map.asJson))
-
-    case GET -> Root / "gene" / GeneSymbolVar(geneSymbol) / "hgvs" / "p" / pname =>
-      api.hgvsPName(pname, geneSymbol).fold(NotFound(geneSymbol))(map => Ok(map.asJson))
+    case GET -> Root / "gene" / GeneSymbolVar(geneSymbol) / "hgvs" / hgvs =>
+      resp(hgvs, cond(isPName(hgvs), api.hgvsPName(hgvs, geneSymbol))
+        .orElse(cond(isCName(hgvs), api.hgvsCName(hgvs, geneSymbol))))
 
     case GET -> Root / "transcript" / TranscriptVar(transcript) =>
-      api.getTranscript(transcript).fold(NotFound(transcript))(gene => Ok(gene.asJson))
+      resp(transcript, api.getTranscript(transcript))
 
     case GET -> Root / "transcript" / TranscriptVar(transcript) / "cds" / "pos" / IntVar(pos) =>
-      api.cdsPosTranscript(transcript, pos).fold(NotFound(transcript))(base => Ok(base.asJson))
+      resp(transcript, api.cdsPosTranscript(transcript, pos))
 
     case GET -> Root / "transcript" / TranscriptVar(transcript) / "codon" / "pos" / IntVar(pos) =>
-      api.codonPosTranscript(transcript, pos).fold(NotFound(transcript))(codon => Ok(codon.asJson))
+      resp(transcript, api.codonPosTranscript(transcript, pos))
 
     case GET -> Root / "transcript" / TranscriptVar(transcript) / "exon" / "pos" / IntVar(num) =>
-      api.exonNumTranscript(transcript, num).fold(NotFound(transcript))(exon => Ok(exon.asJson))
+      resp(transcript, api.exonNumTranscript(transcript, num))
 
-    case GET -> Root / "transcript" / TranscriptVar(transcript) / "hgvs" / "c" / cname =>
-      api.hgvsCNameTranscript(cname, transcript).fold(NotFound(transcript))(snv => Ok(snv.asJson))
+    case GET -> Root / "transcript" / TranscriptVar(transcript) / "hgvs" / hgvs =>
+      resp(hgvs, cond(isPName(hgvs), api.hgvsPNameTranscript(hgvs, transcript))
+        .orElse(cond(isCName(hgvs), api.hgvsCNameTranscript(hgvs, transcript))))
 
-    case GET -> Root / "transcript" / TranscriptVar(transcript) / "hgvs" / "p" / pname =>
-      api.hgvsPNameTranscript(pname, transcript).fold(NotFound(transcript))(set => Ok(set.asJson))
+    case GET -> Root / "hgvscheck" / hgvs =>
+      resp(hgvs, cond(isPName(hgvs), api.hgvsPName(hgvs))
+        .orElse(cond(isCName(hgvs), api.hgvsCName(hgvs))))
+  }
 
-    case GET -> Root / "hgvs" / "p" / pname =>
-      api.hgvsPName(pname).fold(NotFound(pname))(p => Ok(p.asJson))
+  def resp[A](err: String, body: Option[A])(implicit encoder: Encoder[A]) = {
+    body.map(_.asJson).fold(NotFound(err))(json => Ok(json))
+  }
 
-    case GET -> Root / "hgvs" / "c" / cname =>
-      api.hgvsCName(cname).fold(NotFound(cname))(c => Ok(c.asJson))
+  def cond[A](predicate: Boolean, exec: => Option[A])(implicit encoder: Encoder[A]): Option[Json] = {
+    if (predicate) exec.map(_.asJson) else None
   }
 
   override def stream(args: List[String], requestShutdown: IO[Unit]): Stream[IO, ExitCode] =
