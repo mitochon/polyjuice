@@ -5,7 +5,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import org.http4s._
 import org.http4s.circe._
 import org.http4s.dsl.io._
-import org.http4s.implicits._
 import org.http4s.server.blaze._
 
 import cats.effect._
@@ -52,6 +51,8 @@ object WebServer extends StreamApp[IO] {
   val api = Api(Loader.init)
 
   val service = HttpService[IO] {
+    case GET -> Root / "status" =>
+      Ok(Json.obj(("ensemblBuild", Json.fromString(WebServerConfig.EnsemblBuild))))
 
     case GET -> Root / "gene" / GeneSymbolVar(geneSymbol) =>
       resp(geneSymbol, api.getGene(geneSymbol))
