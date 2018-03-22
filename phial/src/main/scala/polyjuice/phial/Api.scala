@@ -34,15 +34,11 @@ case class Api(genes: Map[GeneSymbol, Gene]) {
     genes.get(g).map(CodingSequenceTracer(_).cds(pos))
   }
 
-  def codonPos(g: GeneSymbol, pos: Int): Option[Map[Transcript, Codon]] = {
-    genes.get(g).map(CodonTracer(_).codon(pos))
+  def cdsCoord(g: GeneSymbol, pos: Int): Option[Map[Transcript, Single]] = {
+    genes.get(g).map(CodingSequenceTracer(_).coord(pos))
   }
 
-  def exonNum(g: GeneSymbol, num: Int): Option[Map[Transcript, Exon]] = {
-    genes.get(g).map(ExonTracer(_).exon(num))
-  }
-
-  def cdsPosTranscript(t: Transcript, pos: Int): Option[Base] = {
+  def cdsTranscriptPos(t: Transcript, pos: Int): Option[Base] = {
     for {
       g <- transcripts.get(t)
       m <- cdsPos(g, pos)
@@ -50,12 +46,40 @@ case class Api(genes: Map[GeneSymbol, Gene]) {
     } yield b
   }
 
-  def codonPosTranscript(t: Transcript, pos: Int): Option[Codon] = {
+  def cdsTranscriptCoord(t: Transcript, pos: Int): Option[Single] = {
+    for {
+      g <- transcripts.get(t)
+      m <- cdsCoord(g, pos)
+      b <- m.get(t)
+    } yield b
+  }
+
+  def codonPos(g: GeneSymbol, pos: Int): Option[Map[Transcript, Codon]] = {
+    genes.get(g).map(CodonTracer(_).codon(pos))
+  }
+
+  def codonCoord(g: GeneSymbol, pos: Int): Option[Map[Transcript, Triple]] = {
+    genes.get(g).map(CodonTracer(_).coord(pos))
+  }
+
+  def codonTranscriptPos(t: Transcript, pos: Int): Option[Codon] = {
     for {
       g <- transcripts.get(t)
       m <- codonPos(g, pos)
       c <- m.get(t)
     } yield c
+  }
+
+  def codonTranscriptCoord(t: Transcript, pos: Int): Option[Triple] = {
+    for {
+      g <- transcripts.get(t)
+      m <- codonCoord(g, pos)
+      c <- m.get(t)
+    } yield c
+  }
+
+  def exonNum(g: GeneSymbol, num: Int): Option[Map[Transcript, Exon]] = {
+    genes.get(g).map(ExonTracer(_).exon(num))
   }
 
   def exonNumTranscript(t: Transcript, num: Int): Option[Exon] = {

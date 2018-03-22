@@ -59,8 +59,14 @@ object WebServer extends StreamApp[IO] {
     case GET -> Root / "gene" / GeneSymbolVar(geneSymbol) / "cds" / "pos" / IntVar(pos) =>
       resp(geneSymbol, api.cdsPos(geneSymbol, pos))
 
+    case GET -> Root / "gene" / GeneSymbolVar(geneSymbol) / "cds" / "coord" / IntVar(pos) =>
+      resp(geneSymbol, api.cdsCoord(geneSymbol, pos))
+
     case GET -> Root / "gene" / GeneSymbolVar(geneSymbol) / "codon" / "pos" / IntVar(pos) =>
       resp(geneSymbol, api.codonPos(geneSymbol, pos))
+
+    case GET -> Root / "gene" / GeneSymbolVar(geneSymbol) / "codon" / "coord" / IntVar(pos) =>
+      resp(geneSymbol, api.codonCoord(geneSymbol, pos))
 
     case GET -> Root / "gene" / GeneSymbolVar(geneSymbol) / "exon" / "num" / IntVar(num) =>
       resp(geneSymbol, api.exonNum(geneSymbol, num))
@@ -73,10 +79,16 @@ object WebServer extends StreamApp[IO] {
       resp(transcript, api.getTranscript(transcript))
 
     case GET -> Root / "transcript" / TranscriptVar(transcript) / "cds" / "pos" / IntVar(pos) =>
-      resp(transcript, api.cdsPosTranscript(transcript, pos))
+      resp(transcript, api.cdsTranscriptPos(transcript, pos))
+
+    case GET -> Root / "transcript" / TranscriptVar(transcript) / "cds" / "coord" / IntVar(pos) =>
+      resp(transcript, api.cdsTranscriptCoord(transcript, pos))
 
     case GET -> Root / "transcript" / TranscriptVar(transcript) / "codon" / "pos" / IntVar(pos) =>
-      resp(transcript, api.codonPosTranscript(transcript, pos))
+      resp(transcript, api.codonTranscriptPos(transcript, pos))
+
+    case GET -> Root / "transcript" / TranscriptVar(transcript) / "codon" / "coord" / IntVar(pos) =>
+      resp(transcript, api.codonTranscriptCoord(transcript, pos))
 
     case GET -> Root / "transcript" / TranscriptVar(transcript) / "exon" / "pos" / IntVar(num) =>
       resp(transcript, api.exonNumTranscript(transcript, num))
