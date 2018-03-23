@@ -1,8 +1,10 @@
 package polyjuice.phial
 
+import polyjuice.phial.model.{ HgvsEntry, Hgvs2VcfResult }
 import polyjuice.potion.model._
 import polyjuice.potion.parser._
 import polyjuice.potion.tracer._
+import polyjuice.potion.vcf._
 
 case class Api(genes: Map[GeneSymbol, Gene]) {
 
@@ -127,5 +129,14 @@ case class Api(genes: Map[GeneSymbol, Gene]) {
 
   def hgvsCName(hgvs: String): Option[CdsVariant] = {
     CNameParser.parse(hgvs)
+  }
+
+  def hgvs2vcf(entries: Seq[HgvsEntry]): Hgvs2VcfResult = {
+    val builder = VcfBuilder(entries)
+    val (trNoMatch, trLines) = VcfBuilder.partitionOutcome(builder.buildTranscriptCoords(this))
+    val (geneNoMatch, geneLines) = VcfBuilder.partitionOutcome(builder.buildGeneCoords(this))
+    val allLines = (trLines ++ geneLines).flatMap(VcfBuilder.addEntryAsInfoKey)
+
+    Hgvs2VcfResult(VcfLine.printVcf(allLines), trNoMatch ++ geneNoMatch, builder.errors)
   }
 }

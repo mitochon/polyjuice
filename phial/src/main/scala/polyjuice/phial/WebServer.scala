@@ -16,6 +16,7 @@ import io.circe.syntax._
 import fs2.{ Stream, StreamApp }
 import fs2.StreamApp.ExitCode
 
+import polyjuice.phial.model.HgvsEntry
 import polyjuice.potion.model._
 
 object WebServer extends StreamApp[IO] {
@@ -30,6 +31,9 @@ object WebServer extends StreamApp[IO] {
     final def apply(b: Base): Json = Json.fromString(s"$b")
   }
 
+  // decoder
+  implicit val hgvsEntryDecoder = jsonOf[IO, List[HgvsEntry]]
+
   // request param extractors
   object GeneSymbolVar {
     def unapply(g: String): Option[GeneSymbol] = {
@@ -43,10 +47,6 @@ object WebServer extends StreamApp[IO] {
       Option(t).map(_.toUpperCase).filter(_.startsWith("ENST")).map(_.takeWhile(_ != '.'))
     }
   }
-
-  // helper functions
-  val isPName = (hgvs: String) => hgvs.startsWith("p.")
-  val isCName = (hgvs: String) => hgvs.startsWith("c.")
 
   val api = Api(Loader.init)
 
@@ -73,8 +73,8 @@ object WebServer extends StreamApp[IO] {
       resp(geneSymbol, api.exonNum(geneSymbol, num))
 
     case GET -> Root / "gene" / GeneSymbolVar(geneSymbol) / "hgvs" / hgvs =>
-      resp(hgvs, cond(isPName(hgvs), api.hgvsPName(hgvs, geneSymbol))
-        .orElse(cond(isCName(hgvs), api.hgvsCName(hgvs, geneSymbol))))
+      resp(hgvs, cond(HgvsEntry.IsPName(hgvs), api.hgvsPName(hgvs, geneSymbol))
+        .orElse(cond(HgvsEntry.IsCName(hgvs), api.hgvsCName(hgvs, geneSymbol))))
 
     case GET -> Root / "transcript" / TranscriptVar(transcript) =>
       resp(transcript, api.getTranscript(transcript))
@@ -95,12 +95,18 @@ object WebServer extends StreamApp[IO] {
       resp(transcript, api.exonNumTranscript(transcript, num))
 
     case GET -> Root / "transcript" / TranscriptVar(transcript) / "hgvs" / hgvs =>
-      resp(hgvs, cond(isPName(hgvs), api.hgvsPNameTranscript(hgvs, transcript))
-        .orElse(cond(isCName(hgvs), api.hgvsCNameTranscript(hgvs, transcript))))
+      resp(hgvs, cond(HgvsEntry.IsPName(hgvs), api.hgvsPNameTranscript(hgvs, transcript))
+        .orElse(cond(HgvsEntry.IsCName(hgvs), api.hgvsCNameTranscript(hgvs, transcript))))
 
     case GET -> Root / "hgvscheck" / hgvs =>
-      resp(hgvs, cond(isPName(hgvs), api.hgvsPName(hgvs))
-        .orElse(cond(isCName(hgvs), api.hgvsCName(hgvs))))
+      resp(hgvs, cond(HgvsEntry.IsPName(hgvs), api.hgvsPName(hgvs))
+        .orElse(cond(HgvsEntry.IsCName(hgvs), api.hgvsCName(hgvs))))
+
+    case req @ POST -> Root / "hgvs2vcf" =>
+      for {
+        entries <- req.as[List[HgvsEntry]]
+        res <- Ok(api.hgvs2vcf(entries).asJson)
+      } yield res
   }
 
   def resp[A](err: String, body: Option[A])(implicit encoder: Encoder[A]) = {
