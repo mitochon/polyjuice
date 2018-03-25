@@ -2,7 +2,12 @@ package polyjuice.phial.model
 
 import polyjuice.potion.model._
 
-case class HgvsEntry(gene: Option[GeneSymbol], transcript: Option[Transcript], hgvs: String)
+case class HgvsEntry(gene: Option[GeneSymbol], transcript: Option[Transcript], hgvs: String) {
+
+  def toVcfMetaValue: String = {
+    transcript.orElse(gene).getOrElse("") + s"_${hgvs.stripPrefix("p.").stripPrefix("c.")}"
+  }
+}
 
 object HgvsEntry {
 

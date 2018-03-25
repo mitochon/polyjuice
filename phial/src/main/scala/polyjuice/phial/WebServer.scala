@@ -48,9 +48,9 @@ object WebServer extends StreamApp[IO] {
     }
   }
 
-  val api = Api(Loader.init)
+  val api = Api(Loader.init, WebServerConfig.EnsemblBuild)
 
-  val status = Status(WebServerConfig.EnsemblBuild, api.genes.keySet.toSeq.sorted)
+  val status = Status(api.ensemblBuild, api.genes.keySet.toList.sorted)
 
   val service = HttpService[IO] {
     case GET -> Root / "status" =>
@@ -107,7 +107,7 @@ object WebServer extends StreamApp[IO] {
     case req @ POST -> Root / "hgvs2vcf" =>
       for {
         entries <- req.as[List[HgvsEntry]]
-        res <- Ok(api.hgvs2vcf(entries).asJson)
+        res <- Ok(api.hgvs2vcf(entries))
       } yield res
   }
 

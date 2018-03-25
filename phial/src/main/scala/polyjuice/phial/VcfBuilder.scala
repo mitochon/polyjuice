@@ -14,7 +14,7 @@ case class VcfBuilder(entries: Seq[HgvsEntry]) {
 
   val errors = badEntries ++ badPNames ++ badCNames
 
-  def buildGeneCoords(api: Api) = {
+  def buildGeneCoords(api: Api): Seq[HgvsVcfOutcome] = {
     val getVariant = (e: HgvsEntry) => e.gene.flatMap(api.hgvsCName(e.hgvs, _))
     val getVariantSet = (e: HgvsEntry) => e.gene.flatMap(api.hgvsPName(e.hgvs, _))
 
@@ -22,12 +22,28 @@ case class VcfBuilder(entries: Seq[HgvsEntry]) {
       entriesWithGeneSet(pnameGeneEntries.map(e => (e, getVariantSet(e))))
   }
 
-  def buildTranscriptCoords(api: Api) = {
+  def buildTranscriptCoords(api: Api): Seq[HgvsVcfOutcome] = {
     val getVariant = (e: HgvsEntry) => e.transcript.flatMap(api.hgvsCNameTranscript(e.hgvs, _))
     val getVariantSet = (e: HgvsEntry) => e.transcript.flatMap(api.hgvsPNameTranscript(e.hgvs, _))
 
     entriesWithTranscript(cnameTranscriptEntries.map(e => (e, getVariant(e)))) ++
       entriesWithTranscriptSet(pnameTranscriptEntries.map(e => (e, getVariantSet(e))))
+  }
+
+  def buildMetaKeys(api: Api, unmatchedEntries: Seq[HgvsEntry] = Seq()): Seq[MetaKey] = {
+    def combine(keys: Seq[MetaKey], e: (String, Seq[HgvsEntry])): Seq[MetaKey] = {
+      val (k, xs) = e
+      if (xs.isEmpty) keys
+      else keys :+ MetaKey(k, xs.map(_.toVcfMetaValue).mkString(";"))
+    }
+
+    val init = Seq(
+      MetaKey("PolyJuiceVersion", "0.1.0-SNAPSHOT"),
+      MetaKey("EnsemblBuild", s"${api.ensemblBuild}"))
+
+    Map(
+      "UnmatchedEntries" -> unmatchedEntries,
+      "MalformedEntries" -> errors).foldLeft(init)(combine)
   }
 }
 
@@ -43,8 +59,7 @@ object VcfBuilder {
   def addEntryAsInfoKey(line: HgvsVcfLine): Seq[VcfLine] = {
     val (e, xs) = line
     val key = InfoKey("HGVS", Count(1), DataType.StringType, "HGVS string")
-    val value = e.transcript.orElse(e.gene).getOrElse("") + s"_${e.hgvs.stripPrefix("p.").stripPrefix("c.")}"
-    xs.map(x => x.copy(info = x.info + (key -> value)))
+    xs.map(x => x.copy(info = x.info + (key -> e.toVcfMetaValue)))
   }
 
   def entriesWithTranscript(xs: Seq[(HgvsEntry, Option[VariantCoord])]): Seq[HgvsVcfOutcome] = {
