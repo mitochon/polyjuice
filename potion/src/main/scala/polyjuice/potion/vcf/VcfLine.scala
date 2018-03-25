@@ -26,7 +26,7 @@ object VcfLine {
 
   val Missing = "."
 
-  val TranscriptKey = InfoKey("TR", Alt, DataType.StringType, "Transcript")
+  val TranscriptKey = InfoKey("TR", Count(1), DataType.StringType, "Transcript")
 
   def apply(variant: VariantCoord, transcript: Option[Transcript]): VcfLine = {
     val infoMap = transcript.map(t => Map((TranscriptKey -> t))).getOrElse(Map())
@@ -42,9 +42,13 @@ object VcfLine {
     }
   }
 
-  def printVcf(lines: Seq[VcfLine]): Seq[String] = {
+  def printVcf(lines: Seq[VcfLine], metaKeys: Seq[MetaKey] = Seq()): Seq[String] = {
     val infoKeys = lines.flatMap(_.info.keySet).toSet
-    VcfHeaders.Version +: (infoKeys.map(_.toString).toSeq ++ Seq(VcfHeaders.HeaderNoSample) ++
-      lines.map(_.toString))
+
+    VcfHeader.FileFormatLine +:
+      (infoKeys.map(_.toString).toSeq ++
+        metaKeys.map(_.toString) ++
+        Seq(VcfHeader.HeaderLineNoSample) ++
+        lines.map(_.toString))
   }
 }

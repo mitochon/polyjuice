@@ -1,8 +1,10 @@
 package polyjuice.potion.vcf
 
-object VcfHeaders {
+trait VcfHeader
 
-  val Version = "##fileformat=VCFv4.3"
+object VcfHeader {
 
-  val HeaderNoSample = Seq("#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO").mkString("\t")
+  val FileFormatLine = "##fileformat=VCFv4.3"
+
+  val HeaderLineNoSample = Seq("#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO").mkString("\t")
 }

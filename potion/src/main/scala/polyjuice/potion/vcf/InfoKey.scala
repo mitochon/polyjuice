@@ -6,7 +6,7 @@ case class InfoKey(
   dataType: DataType.Value,
   description: String,
   source: Option[String] = None,
-  version: Option[String] = None) {
+  version: Option[String] = None) extends VcfHeader {
 
   require(InfoKey.IdRegex.findFirstIn(id).isDefined)
 
