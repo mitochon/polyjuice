@@ -1,9 +1,10 @@
 package polyjuice.potion.io
 
-import java.io.IOException
-import java.nio.file.Path
+import java.io.{ IOException, InputStream }
+import java.nio.file.{ Files, Path }
+import java.util.zip.GZIPInputStream
 
-import scala.io.{ BufferedSource, Source }
+import scala.io.Source
 import scala.util.Try
 
 import polyjuice.potion.model.{ EnsemblFastaHeaderRecord, Transcript }
@@ -16,16 +17,16 @@ object EnsemblFastaReader {
     filter: EnsemblFastaHeaderRecord => Boolean,
     fn: Iterator[Line[EnsemblFastaHeaderRecord]] => A): A = {
 
-    var fa: BufferedSource = null
+    var stream: InputStream = null
     try {
-      fa = Source.fromFile(fastaPath.toFile())
-      fn(fa.getLines()
+      stream = new GZIPInputStream(Files.newInputStream(fastaPath))
+      fn(Source.fromInputStream(stream).getLines()
         .filter(_.startsWith(EnsemblFastaHeaderRecord.Prefix))
         .map(line => Try(EnsemblFastaHeaderRecord(line)).toEither)
         .filter(lineFilter(_, filter)))
 
     } finally {
-      if (fa != null) fa.close()
+      if (stream != null) stream.close()
     }
   }
 
@@ -50,10 +51,10 @@ object EnsemblFastaReader {
       header.foreach(h => if (bases.nonEmpty) map += (h.transcript -> bases.mkString))
     }
 
-    var fa: BufferedSource = null
+    var stream: InputStream = null
     try {
-      fa = Source.fromFile(fastaPath.toFile())
-      val lines = fa.getLines()
+      stream = new GZIPInputStream(Files.newInputStream(fastaPath))
+      val lines = Source.fromInputStream(stream).getLines()
 
       while (lines.hasNext) {
         val currentLine = lines.next()
@@ -68,7 +69,7 @@ object EnsemblFastaReader {
       updateMap()
       map.toMap
     } finally {
-      if (fa != null) fa.close()
+      if (stream != null) stream.close()
     }
   }
 }
