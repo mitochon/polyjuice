@@ -34,6 +34,8 @@ object Loader extends LazyLogging {
       }
     }
 
+    logger.info("Initializing ...")
+
     val GeneLoader = EnsemblGeneReader.get(
       WebServerConfig.GeneList.filter(_.nonEmpty).toSet,
       WebServerConfig.EnsemblCdsFastaPath,

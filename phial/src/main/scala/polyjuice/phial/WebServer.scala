@@ -16,7 +16,7 @@ import io.circe.syntax._
 import fs2.{ Stream, StreamApp }
 import fs2.StreamApp.ExitCode
 
-import polyjuice.phial.model.HgvsEntry
+import polyjuice.phial.model.{ HgvsEntry, Status }
 import polyjuice.potion.model._
 
 object WebServer extends StreamApp[IO] {
@@ -50,9 +50,11 @@ object WebServer extends StreamApp[IO] {
 
   val api = Api(Loader.init)
 
+  val status = Status(WebServerConfig.EnsemblBuild, api.genes.keySet.toSeq.sorted)
+
   val service = HttpService[IO] {
     case GET -> Root / "status" =>
-      Ok(Json.obj(("ensemblBuild", Json.fromString(WebServerConfig.EnsemblBuild))))
+      Ok(status.asJson)
 
     case GET -> Root / "gene" / GeneSymbolVar(geneSymbol) =>
       resp(geneSymbol, api.getGene(geneSymbol))
