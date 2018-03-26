@@ -121,7 +121,7 @@ object WebServer extends StreamApp[IO] {
 
   override def stream(args: List[String], requestShutdown: IO[Unit]): Stream[IO, ExitCode] =
     BlazeBuilder[IO]
-      .bindHttp(8080, "localhost")
+      .bindHttp(WebServerConfig.ServicePort, WebServerConfig.ServiceHost)
       .mountService(service, "/api/polyjuice")
       .serve
 }
