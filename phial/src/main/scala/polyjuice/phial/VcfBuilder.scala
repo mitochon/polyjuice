@@ -1,14 +1,14 @@
 package polyjuice.phial
 
-import polyjuice.phial.model.HgvsEntry
+import polyjuice.phial.model.{ Hgvs2VcfRequest, HgvsEntry }
 import polyjuice.potion.model._
 import polyjuice.potion.vcf._
 
-case class VcfBuilder(entries: Seq[HgvsEntry]) {
+case class VcfBuilder(req: Hgvs2VcfRequest) {
 
   import VcfBuilder._
 
-  val (pnameEntries, cnameEntries, badEntries) = HgvsEntry.partitionByHgvsType(entries)
+  val (pnameEntries, cnameEntries, badEntries) = HgvsEntry.partitionByHgvsType(req.entries)
   val (pnameGeneEntries, pnameTranscriptEntries, badPNames) = HgvsEntry.partitionByGeneOrTranscript(pnameEntries)
   val (cnameGeneEntries, cnameTranscriptEntries, badCNames) = HgvsEntry.partitionByGeneOrTranscript(cnameEntries)
 

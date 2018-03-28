@@ -1,6 +1,6 @@
 package polyjuice.phial
 
-import polyjuice.phial.model.HgvsEntry
+import polyjuice.phial.model.{ Hgvs2VcfRequest, HgvsEntry }
 import polyjuice.potion.model._
 import polyjuice.potion.parser._
 import polyjuice.potion.tracer._
@@ -131,11 +131,10 @@ case class Api(genes: Map[GeneSymbol, Gene], ensemblBuild: String) {
     CNameParser.parse(hgvs)
   }
 
-  def hgvs2vcf(entries: Seq[HgvsEntry]): String = {
-    val builder = VcfBuilder(entries)
-    val (trNoMatch, trLines) = VcfBuilder.partitionOutcome(builder.buildTranscriptCoords(this))
-    val (geneNoMatch, geneLines) = VcfBuilder.partitionOutcome(builder.buildGeneCoords(this))
-    val unmatchedEntries = trNoMatch ++ geneNoMatch
+  def hgvs2vcf(req: Hgvs2VcfRequest): String = {
+    val builder = VcfBuilder(req)
+    val (_, trLines) = VcfBuilder.partitionOutcome(builder.buildTranscriptCoords(this))
+    val (_, geneLines) = VcfBuilder.partitionOutcome(builder.buildGeneCoords(this))
     val allMatches = (trLines ++ geneLines).flatMap(VcfBuilder.addEntryAsInfoKey)
 
     VcfLine.printVcf(allMatches, builder.buildMetaKeys(this)).mkString("\n")
