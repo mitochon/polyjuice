@@ -8,7 +8,7 @@ case class InfoKey(
   source: Option[String] = None,
   version: Option[String] = None) extends VcfHeader {
 
-  require(InfoKey.IdRegex.findFirstIn(id).isDefined)
+  require(VcfHeader.IdRegex.findFirstIn(id).isDefined)
 
   override def toString: String = {
     s"##INFO=<ID=$id,Number=$number,Type=${DataType.toString(dataType)}" +
@@ -16,9 +16,4 @@ case class InfoKey(
       source.map(s => s""",Source="$s"""").getOrElse("") +
       version.map(s => s""",Version="$s"""").getOrElse("") + ">"
   }
-}
-
-object InfoKey {
-
-  val IdRegex = """[A-Za-z_][0-9A-Za-z_.]""".r
 }
