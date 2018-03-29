@@ -137,7 +137,8 @@ case class Api(genes: Map[GeneSymbol, Gene], ensemblBuild: String) {
     val (_, geneLines) = VcfBuilder.partitionOutcome(builder.buildGeneCoords(this))
     val allMatches = (trLines ++ geneLines).flatMap(VcfBuilder.addEntryAsInfoKey)
     val fileFormat = req.vcfFileFormat.map(FileFormatKey)
+    val addChr = req.addChrPrefix.getOrElse(false)
 
-    VcfLine.printVcf(allMatches, builder.buildMetaKeys(this), fileFormat).mkString("\n")
+    VcfLine.printVcf(allMatches, addChr, builder.buildMetaKeys(this), fileFormat).mkString("\n")
   }
 }

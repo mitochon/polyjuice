@@ -44,15 +44,18 @@ object VcfLine {
 
   def printVcf(
     lines: Seq[VcfLine],
+    addChrPrefix: Boolean = false,
     metaKeys: Seq[MetaKey] = Seq(),
     fileFormat: Option[FileFormatKey] = None): Seq[String] = {
 
     val infoKeys = lines.flatMap(_.info.keySet).toSet
 
+    val body = if (addChrPrefix) lines.map(l => s"chr$l") else lines.map(l => s"$l")
+
     fileFormat.getOrElse(VcfHeader.FileFormat43).toString +:
       (infoKeys.map(_.toString).toSeq ++
         metaKeys.map(_.toString) ++
         Seq(VcfHeader.HeaderLineNoSample) ++
-        lines.map(_.toString))
+        body)
   }
 }
