@@ -133,12 +133,11 @@ case class Api(genes: Map[GeneSymbol, Gene], ensemblBuild: String) {
 
   def hgvs2vcf(req: Hgvs2VcfRequest): String = {
     val builder = VcfBuilder(req)
-    val (_, trLines) = VcfBuilder.partitionOutcome(builder.buildTranscriptCoords(this))
-    val (_, geneLines) = VcfBuilder.partitionOutcome(builder.buildGeneCoords(this))
-    val allMatches = (trLines ++ geneLines).flatMap(VcfBuilder.addEntryAsInfoKey)
+    val lines = builder.buildVcf(this)
+    val metaKeys = builder.buildMetaKeys(this)
     val fileFormat = req.vcfFileFormat.map(FileFormatKey)
     val addChr = req.addChrPrefix.getOrElse(false)
 
-    VcfLine.printVcf(allMatches, addChr, builder.buildMetaKeys(this), fileFormat).mkString("\n")
+    VcfLine.printVcf(lines, addChr, metaKeys, fileFormat).mkString("\n")
   }
 }

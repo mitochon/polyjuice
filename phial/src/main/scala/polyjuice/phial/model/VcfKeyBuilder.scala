@@ -33,3 +33,10 @@ case class VcfKeyBuilder(
     } yield t).getOrElse(DataType.StringType)
   }
 }
+
+object VcfKeyBuilder {
+
+  def buildMap[A](xs: Seq[VcfKeyBuilder], fn: VcfKeyBuilder => A): Map[A, String] = {
+    xs.foldLeft(Map[A, String]())((map, b) => map + (fn(b) -> b.value))
+  }
+}

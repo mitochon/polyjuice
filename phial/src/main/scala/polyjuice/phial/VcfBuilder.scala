@@ -1,6 +1,6 @@
 package polyjuice.phial
 
-import polyjuice.phial.model.{ Hgvs2VcfRequest, HgvsEntry }
+import polyjuice.phial.model._
 import polyjuice.potion.model._
 import polyjuice.potion.vcf._
 
@@ -13,6 +13,9 @@ case class VcfBuilder(req: Hgvs2VcfRequest) {
   val (cnameGeneEntries, cnameTranscriptEntries, badCNames) = HgvsEntry.partitionByGeneOrTranscript(cnameEntries)
 
   val errors = badEntries ++ badPNames ++ badCNames
+
+  val infoKeys = req.appendInfoFields.map(VcfKeyBuilder.buildMap(_, _.buildInfoKey))
+  val fmtKeys = req.appendInfoFields.map(VcfKeyBuilder.buildMap(_, _.buildFormatKey))
 
   def buildGeneCoords(api: Api): Seq[HgvsVcfOutcome] = {
     val getVariant = (e: HgvsEntry) => e.gene.flatMap(api.hgvsCName(e.hgvs, _))
@@ -44,6 +47,13 @@ case class VcfBuilder(req: Hgvs2VcfRequest) {
     Map(
       "UnmatchedEntries" -> unmatchedEntries,
       "MalformedEntries" -> errors).foldLeft(init)(combine)
+  }
+
+  def buildVcf(api: Api): Seq[VcfLine] = {
+    val (_, trLines) = partitionOutcome(buildTranscriptCoords(api))
+    val (_, geneLines) = partitionOutcome(buildGeneCoords(api))
+    val allMatches = (trLines ++ geneLines).flatMap(addEntryAsInfoKey)
+    infoKeys.map(keys => allMatches.map(appendInfoKeys(_, keys))).getOrElse(allMatches)
   }
 }
 
@@ -104,5 +114,9 @@ object VcfBuilder {
     map.toSeq.map {
       case (transcript, variant) => VcfLine(variant, Some(transcript))
     }
+  }
+
+  def appendInfoKeys(line: VcfLine, keys: Map[InfoKey, String]): VcfLine = {
+    line.copy(info = line.info ++ keys)
   }
 }
