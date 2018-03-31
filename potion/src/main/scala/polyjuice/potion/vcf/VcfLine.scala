@@ -26,6 +26,8 @@ object VcfLine {
 
   val Missing = "."
 
+  val GTFormatKey = FormatKey("GT", Count(1), DataType.StringType, "Genotype")
+
   val TranscriptKey = InfoKey("TR", Count(1), DataType.StringType, "Transcript")
 
   def apply(variant: VariantCoord, transcript: Option[Transcript]): VcfLine = {
