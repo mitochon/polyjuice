@@ -7,7 +7,11 @@ case class EnsemblGene(
   start: Int,
   end: Int,
   strand: Strand.Value,
-  utr5: Option[UTR5],
-  utr3: Option[UTR3],
+  utr5: IndexedSeq[UTR5],
+  utr3: IndexedSeq[UTR3],
   exons: IndexedSeq[Exon],
-  codingSequence: String)
+  codingSequence: String) {
+
+  def utr5Len: Int = utr5.map(_.length).sum
+  def utr3Len: Int = utr3.map(_.length).sum
+}

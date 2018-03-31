@@ -54,12 +54,12 @@ object CodingSequenceTracer {
     }
 
     def isPastUTR3(e: Exon, i: Int): Boolean = {
-      isLastExon(e) && e.length - g.utr3.fold(0)(_.length) < i
+      isLastExon(e) && e.length - g.utr3Len < i
     }
 
     val exons = g.exons.sortBy(_.rank)
     var offset = None: Option[Offset]
-    var remainder = pos + g.utr5.fold(0)(_.length)
+    var remainder = pos + g.utr5Len
 
     breakable {
       for (idx <- exons.indices) {

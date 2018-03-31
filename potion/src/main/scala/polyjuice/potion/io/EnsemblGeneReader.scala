@@ -36,8 +36,8 @@ object EnsemblGeneReader {
 
   def addUTR(gene: Gene, utr: UTR): Gene = {
     def copyUTR(g: EnsemblGene) = utr match {
-      case u5: UTR5 => g.copy(utr5 = Some(u5))
-      case u3: UTR3 => g.copy(utr3 = Some(u3))
+      case u5: UTR5 => g.copy(utr5 = g.utr5 :+ u5)
+      case u3: UTR3 => g.copy(utr3 = g.utr3 :+ u3)
       case _        => g
     }
 
@@ -90,8 +90,8 @@ object EnsemblGeneReader {
               fastaHeader.start,
               fastaHeader.stop,
               fastaHeader.strand,
-              None,
-              None,
+              IndexedSeq(),
+              IndexedSeq(),
               IndexedSeq(),
               bases))
       }
