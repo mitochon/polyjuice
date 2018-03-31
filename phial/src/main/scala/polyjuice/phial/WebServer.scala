@@ -1,22 +1,17 @@
 package polyjuice.phial
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import org.http4s._
 import org.http4s.circe._
 import org.http4s.dsl.io._
 import org.http4s.server.blaze._
-
 import cats.effect._
-
 import io.circe._
 import io.circe.generic.auto._
 import io.circe.syntax._
-
 import fs2.{ Stream, StreamApp }
 import fs2.StreamApp.ExitCode
-
-import polyjuice.phial.model.{ HgvsEntry, Status }
+import polyjuice.phial.model.{ Hgvs2VcfRequest, HgvsEntry, Status }
 import polyjuice.potion.model._
 
 object WebServer extends StreamApp[IO] {
@@ -32,7 +27,7 @@ object WebServer extends StreamApp[IO] {
   }
 
   // decoder
-  implicit val hgvsEntryDecoder = jsonOf[IO, List[HgvsEntry]]
+  implicit val hgvs2vcfDecoder = jsonOf[IO, Hgvs2VcfRequest]
 
   // request param extractors
   object GeneSymbolVar {
@@ -106,8 +101,8 @@ object WebServer extends StreamApp[IO] {
 
     case req @ POST -> Root / "hgvs2vcf" =>
       for {
-        entries <- req.as[List[HgvsEntry]]
-        res <- Ok(api.hgvs2vcf(entries))
+        vcf <- req.as[Hgvs2VcfRequest]
+        res <- Ok(api.hgvs2vcf(vcf))
       } yield res
   }
 

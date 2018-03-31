@@ -10,22 +10,28 @@ case class VcfLine(
   info: Map[InfoKey, String] = Map(),
   id: Option[String] = None,
   qual: Option[Float] = None,
-  filter: Option[String] = None) {
+  filter: Option[String] = None,
+  samples: Option[LineSamples] = None) {
 
   override def toString: String = {
     val idStr = id.getOrElse(VcfLine.Missing)
     val filterStr = filter.getOrElse(VcfLine.Missing)
     val qualStr = qual.map(q => s"$q").getOrElse(VcfLine.Missing)
-    val infoStr = info.map(kv => s"${kv._1.id}=${kv._2}").mkString(";")
+    val infoStr = info.map(kv => s"${kv._1.id}=${kv._2}").mkString(VcfLine.InfoSeparator)
 
-    Seq(chrom, s"$pos", idStr, ref, alt, qualStr, filterStr, infoStr).mkString("\t")
+    (Seq(chrom, s"$pos", idStr, ref, alt, qualStr, filterStr, infoStr) ++
+      samples.map(_.toLineSeq).getOrElse(Seq()))
+      .mkString("\t")
   }
 }
 
 object VcfLine {
 
   val Missing = "."
+  val InfoSeparator = ";"
+  val FormatSeparator = ":"
 
+  val GTFormatKey = FormatKey("GT", Count(1), DataType.StringType, "Genotype")
   val TranscriptKey = InfoKey("TR", Count(1), DataType.StringType, "Transcript")
 
   def apply(variant: VariantCoord, transcript: Option[Transcript]): VcfLine = {
@@ -42,13 +48,21 @@ object VcfLine {
     }
   }
 
-  def printVcf(lines: Seq[VcfLine], metaKeys: Seq[MetaKey] = Seq()): Seq[String] = {
-    val infoKeys = lines.flatMap(_.info.keySet).toSet
+  def printVcf(
+    lines: Seq[VcfLine],
+    addChrPrefix: Boolean = false,
+    metaKeys: Seq[MetaKey] = Seq(),
+    fileFormat: Option[FileFormatKey] = None): Seq[String] = {
 
-    VcfHeader.FileFormatLine +:
-      (infoKeys.map(_.toString).toSeq ++
-        metaKeys.map(_.toString) ++
-        Seq(VcfHeader.HeaderLineNoSample) ++
-        lines.map(_.toString))
+    val infoKeys = lines.flatMap(_.info.keySet).distinct
+    val formatKeys = lines.flatMap(_.samples).flatMap(_.keys).distinct
+    val sampleCount = lines.headOption.flatMap(_.samples).map(_.samples.size).getOrElse(0)
+
+    val body = if (addChrPrefix) lines.map(l => s"chr$l") else lines.map(l => s"$l")
+    val headers = fileFormat.getOrElse(VcfHeader.FileFormat43).toString +:
+      (infoKeys.map(_.toString) ++ formatKeys.map(_.toString) ++ metaKeys.map(_.toString)) :+
+      VcfHeader.headerLine(sampleCount)
+
+    headers ++ body
   }
 }
