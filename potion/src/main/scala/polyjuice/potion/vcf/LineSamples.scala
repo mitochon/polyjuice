@@ -7,4 +7,9 @@ case class LineSamples(keys: Seq[FormatKey], samples: Seq[Sample]) {
       gt <- keys.map(_.id).find(_.equals(VcfLine.GTFormatKey.id))
       fst <- keys.headOption.map(_.id)
     } yield gt.equals(fst)).getOrElse(true))
+
+  def toLineSeq: Seq[String] = {
+    keys.map(_.id).mkString(VcfLine.FormatSeparator) +:
+      samples.map(_.toLineBlock(keys))
+  }
 }
