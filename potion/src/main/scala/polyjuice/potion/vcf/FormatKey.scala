@@ -9,7 +9,7 @@ case class FormatKey(
   require(VcfHeader.IdRegex.findFirstIn(id).isDefined)
 
   override def toString: String = {
-    s"##INFO=<ID=$id,Number=$number,Type=${DataType.toString(dataType)}" +
+    s"##FORMAT=<ID=$id,Number=$number,Type=${DataType.toString(dataType)}" +
       s""",Description="$description">"""
   }
 }

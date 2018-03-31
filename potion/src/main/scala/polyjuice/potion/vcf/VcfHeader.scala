@@ -12,7 +12,7 @@ object VcfHeader {
 
   def headerLine(numSamples: Int = 0): String = {
     val samplesBlock = numSamples match {
-      case n if n > 0 => "FORMAT" +: Range(1, n).map(i => s"SAMPLE$i")
+      case n if n > 0 => "FORMAT" +: Range(0, n).map(i => s"SAMPLE$i")
       case _          => Seq()
     }
     (HeaderLineNoSample ++ samplesBlock).mkString("\t")

@@ -13,3 +13,10 @@ case class LineSamples(keys: Seq[FormatKey], samples: Seq[Sample]) {
       samples.map(_.toLineBlock(keys))
   }
 }
+
+object LineSamples {
+
+  def buildKey(fields: Map[FormatKey, String]): Seq[FormatKey] = {
+    fields.keySet.toSeq.sortBy(!_.id.equals(VcfLine.GTFormatKey.id))
+  }
+}

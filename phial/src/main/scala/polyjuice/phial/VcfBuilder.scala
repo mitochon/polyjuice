@@ -16,7 +16,7 @@ case class VcfBuilder(req: Hgvs2VcfRequest) {
   val errors = badEntries ++ badPNames ++ badCNames
 
   val infoKeys = req.appendInfoFields.map(VcfKeyBuilder.buildMap(_, _.buildInfoKey))
-  val formatKeys = req.appendInfoFields.map(VcfKeyBuilder.buildMap(_, _.buildFormatKey))
+  val formatKeys = req.appendFormatFields.map(VcfKeyBuilder.buildMap(_, _.buildFormatKey))
   val onePerTranscript = req.oneVariantPerTranscript.getOrElse(false)
 
   def buildGeneCoords(api: Api): Seq[HgvsVcfOutcome] = {
@@ -55,7 +55,8 @@ case class VcfBuilder(req: Hgvs2VcfRequest) {
     val (_, trLines) = partitionOutcome(buildTranscriptCoords(api))
     val (_, geneLines) = partitionOutcome(buildGeneCoords(api))
     val allMatches = (trLines ++ geneLines).flatMap(addEntryAsInfoKey)
-    infoKeys.map(keys => allMatches.map(appendInfoKeys(_, keys))).getOrElse(allMatches)
+    val withInfoKeys = infoKeys.fold(allMatches)(keys => allMatches.map(appendInfoKeys(_, keys)))
+    formatKeys.fold(withInfoKeys)(keys => withInfoKeys.map(appendFormatKeys(_, keys)))
   }
 }
 
@@ -89,7 +90,7 @@ object VcfBuilder {
     }
     xs.flatMap {
       case (e, Some(s)) if s.nonEmpty => Seq(Right((e, buildFromSet(e, s))))
-      case (e, _)                       => Seq(Left(e))
+      case (e, _)                     => Seq(Left(e))
     }
   }
 
@@ -110,7 +111,7 @@ object VcfBuilder {
     }
     xs.flatMap {
       case (e, Some(m)) if m.nonEmpty => Seq(Right((e, buildFromMap(m).toSeq)))
-      case (e, _)                       => Seq(Left(e))
+      case (e, _)                     => Seq(Left(e))
     }
   }
 
@@ -127,5 +128,9 @@ object VcfBuilder {
 
   def appendInfoKeys(line: VcfLine, keys: Map[InfoKey, String]): VcfLine = {
     line.copy(info = line.info ++ keys)
+  }
+
+  def appendFormatKeys(line: VcfLine, keys: Map[FormatKey, String]): VcfLine = {
+    line.copy(samples = Some(LineSamples(LineSamples.buildKey(keys), Seq(Sample(keys)))))
   }
 }
