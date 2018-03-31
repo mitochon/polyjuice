@@ -16,7 +16,7 @@ case class VcfBuilder(req: Hgvs2VcfRequest) {
   val errors = badEntries ++ badPNames ++ badCNames
 
   val infoKeys = req.appendInfoFields.map(VcfKeyBuilder.buildMap(_, _.buildInfoKey))
-  val fmtKeys = req.appendInfoFields.map(VcfKeyBuilder.buildMap(_, _.buildFormatKey))
+  val formatKeys = req.appendInfoFields.map(VcfKeyBuilder.buildMap(_, _.buildFormatKey))
   val onePerTranscript = req.oneVariantPerTranscript.getOrElse(false)
 
   def buildGeneCoords(api: Api): Seq[HgvsVcfOutcome] = {

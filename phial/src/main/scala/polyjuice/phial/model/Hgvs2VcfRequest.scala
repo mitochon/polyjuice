@@ -2,8 +2,8 @@ package polyjuice.phial.model
 
 case class Hgvs2VcfRequest(
   entries: Seq[HgvsEntry],
-  appendFmtFields: Option[Seq[VcfKeyBuilder]],
   appendInfoFields: Option[Seq[VcfKeyBuilder]],
-  vcfFileFormat: Option[String],
+  appendFormatFields: Option[Seq[VcfKeyBuilder]],
   oneVariantPerTranscript: Option[Boolean],
+  vcfFileFormat: Option[String],
   addChrPrefix: Option[Boolean])
