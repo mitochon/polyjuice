@@ -23,9 +23,9 @@ All the *gene* endpoints have a corresponding *transcript* endpoints. The differ
 ## Limitations
 
 This tool only handles coding regions for cds' and codons. The following cases are NOT handled:
-  * Mutations crossing intronic regions
-  * For [DNA](http://varnomen.hgvs.org/recommendations/DNA/) coding sequence: conversions, copy number variations, allele combinations, complex mutations
-  * For [Protein](http://varnomen.hgvs.org/recommendations/protein/): anything but simple substitutions
+  * Mutations crossing intronic regions and UTR regions.
+  * For [DNA](http://varnomen.hgvs.org/recommendations/DNA/) coding sequence: conversions, copy number variations, allele combinations, complex mutations.
+  * For [Protein](http://varnomen.hgvs.org/recommendations/protein/): anything but simple substitutions.
 
 
 ## Related work
@@ -42,8 +42,8 @@ Some other tools that deal with transcripts and HGVS notations:
 
 The tool requires two files from [Ensembl](https://uswest.ensembl.org/info/data/ftp/index.html) - the CDS FASTA file and the GFF3 file.
 
-### Endpoints
-This section needs some work; for now look directly at the [code](phial/src/main/scala/polyjuice/phial/WebServer.scala) starting from line 60 or so.
+See the [web service module](phial) for more information on how to use the service endpoints.
+
 
 ### Building manually
 
