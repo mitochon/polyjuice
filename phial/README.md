@@ -28,6 +28,7 @@ Shows basic information about the particular instance, i.e. the Ensembl build an
 
 
 GET `/api/polyjuice/gene/<gene_symbol>`
+
 GET `/api/polyjuice/transcript/<transcript>`
 
 Gene symbols are not case-sensitive, i.e. _ERBB2_ and _erbb2_ are equivalent.
@@ -45,8 +46,7 @@ Transcripts are build agnostic, i.e. _ENST00000479537.5_ and _ENST00000479537_ a
     "strand": "-",
     "utr5": [...],
     "utr3": [...],
-    "exons": [...]
-    ],
+    "exons": [...],
     "codingSequence": "ATGAGCGACGTG..."
   }
 }
@@ -55,6 +55,7 @@ Transcripts are build agnostic, i.e. _ENST00000479537.5_ and _ENST00000479537_ a
 ### Exon
 
 GET `/api/polyjuice/gene/<gene_symbol>/exon/num/<num>`
+
 GET `/api/polyjuice/transcript/<transcript>/exon/num/<num>`
 
 Show information about a particular exon, if it exists
@@ -77,6 +78,7 @@ Show information about a particular exon, if it exists
 ### Codon
 
 GET `/api/polyjuice/gene/<gene_symbol>/codon/pos/<pos>`
+
 GET `/api/polyjuice/transcript/<transcript>/codon/pos/<pos>`
 
 Shows the three bases of a codon in a particular location, if it exists
@@ -94,6 +96,7 @@ Shows the three bases of a codon in a particular location, if it exists
 #### Codon coordinates
 
 GET `/api/polyjuice/gene/<gene_symbol>/codon/coord/<pos>`
+
 GET `/api/polyjuice/transcript/<transcript>/codon/coord/<pos>`
 
 Shows the three bases of a codon in absolute genomic coordinates, taking the gene strand into account.
@@ -139,6 +142,7 @@ In this example the codon is split between the first and second base, and the di
 ### Coding sequence
 
 GET `/api/polyjuice/gene/<gene_symbol> /cds/pos/<pos>`
+
 GET `/api/polyjuice/transcript/<transcript>/cds/pos/<pos>`
 
 Shows the coding sequence at a particular location, if available
@@ -153,6 +157,7 @@ Shows the coding sequence at a particular location, if available
 #### Coding sequence coordinates
 
 GET `/api/polyjuice/gene/<gene_symbol> /cds/coord/<pos>`
+
 GET `/api/polyjuice/transcript/<transcript>/cds/coord/<pos>`
 
 Shows the coding sequence location in absolute genomic coordinates, taking the gene strand into account.
@@ -170,6 +175,7 @@ Shows the coding sequence location in absolute genomic coordinates, taking the g
 ### HGVS
 
 GET `/api/polyjuice/gene/<gene_symbol>/hgvs/<hgvs>`
+
 GET `/api/polyjuice/transcript/<transcript>/hgvs/<hgvs>`
 
 Show possible variants for a given HGVS string for [protein](http://varnomen.hgvs.org/recommendations/protein/) or [DNA coding sequence](http://varnomen.hgvs.org/recommendations/DNA/).
@@ -260,7 +266,7 @@ Sample request body
 		{
 			"gene": "EGFR",
 			"hgvs": "p.L858R"
-		}q
+		}
 	],
 	"appendInfoFields": [
 		{
