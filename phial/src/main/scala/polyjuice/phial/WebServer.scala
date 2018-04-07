@@ -88,7 +88,7 @@ object WebServer extends StreamApp[IO] {
     case GET -> Root / "transcript" / TranscriptVar(transcript) / "codon" / "coord" / IntVar(pos) =>
       resp(transcript, api.codonTranscriptCoord(transcript, pos))
 
-    case GET -> Root / "transcript" / TranscriptVar(transcript) / "exon" / "pos" / IntVar(num) =>
+    case GET -> Root / "transcript" / TranscriptVar(transcript) / "exon" / "num" / IntVar(num) =>
       resp(transcript, api.exonNumTranscript(transcript, num))
 
     case GET -> Root / "transcript" / TranscriptVar(transcript) / "hgvs" / hgvs =>
