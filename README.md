@@ -36,7 +36,7 @@ Some other tools that deal with transcripts and HGVS notations:
   * [Mutalyzer](https://www.mutalyzer.nl)
   * [Transvar](https://github.com/zwdzwd/transvar)
   * [Biocommons-HGVS](https://github.com/biocommons/hgvs)
-
+  * [LitVar](https://www.ncbi.nlm.nih.gov/CBBresearch/Lu/Demo/LitVar)
 
 ## Usage
 
