@@ -1,12 +1,10 @@
 import Dependencies._
 
-lazy val commonSettings = Seq(
-	organization := "me.mitochon",
-	scalaVersion := "2.12.6",
-	version := "0.1.0-SNAPSHOT",
+lazy val mavenReleaseSettings = Seq(
 	publishMavenStyle := true,
 	publishTo := Some(sonatypeDefaultResolver.value),
 	licenses += "MIT License" -> url("http://www.opensource.org/licenses/mit-license.php"),
+	homepage := Some(url("https://github.com/mitochon/polyjuice")),
 	developers := List(
 		Developer(
 			id="ico",
@@ -18,9 +16,20 @@ lazy val commonSettings = Seq(
 	scmInfo := Some(ScmInfo(
 		url("https://github.com/mitochon/polyjuice"),
 		"scm:git:https://github.com/mitochon/polyjuice.git"
-	)),
-	libraryDependencies += scalaTest % Test
+	))
 )
+
+lazy val sbtReleasePluginSettings = Seq(
+	releasePublishArtifactsAction := PgpKeys.publishSigned.value,
+	releaseProcess += releaseStepCommand("sonatypeRelease"),
+	releaseIgnoreUntrackedFiles := true
+)
+
+lazy val commonSettings = Seq(
+	organization := "me.mitochon",
+	scalaVersion := "2.12.6",
+	libraryDependencies += scalaTest % Test
+) ++ mavenReleaseSettings ++ sbtReleasePluginSettings
 
 lazy val root = project
 	.in(file("."))
