@@ -44,6 +44,27 @@ The tool requires two files from [Ensembl](https://uswest.ensembl.org/info/data/
 
 See the [web service module](phial) for more information on how to use the service endpoints.
 
+See the [library module](potion) for more information on how to use the API directly.
+
+### Binary releases
+
+Polyjuice is available for Scala 2.12 and is distributed through [Maven Central](https://mvnrepository.com/artifact/me.mitochon).
+
+To use the [library module](potion), add the following to your `build.sbt`:
+
+```
+libraryDependencies += "me.mitochon" %% "polyjuice-potion" % "0.1.0"
+```
+
+Or for maven projects:
+
+```
+<dependency>
+    <groupId>me.mitochon</groupId>
+    <artifactId>polyjuice-potion_2.12</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
 
 ### Building manually
 
@@ -66,8 +87,8 @@ ensembl.cdsFastaPath=/path/to/cds.fa.gz
 ensembl.featureGff3Path=/path/to/gff3.gz
 ```
 
-  * Run the application
+  * Run the REST server
 
 ```
-java -jar -Xmx128m -Dconfig.file=/path/to/file.properties /path/to/assembly.jar
+java -jar -Xmx128m -Dconfig.file=/path/to/file.properties /path/to/polyjuice-phial-assembly.jar
 ```
