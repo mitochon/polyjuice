@@ -47,5 +47,10 @@ class PNameParserTest extends FunSpec with Matchers {
         ProteinDelIns(123, Code.Arg, Some(127), Some(Code.Lys), Seq(Code.Ser, Code.Asp))
       PNameParser.parse("Arg123_Lys127delinsSerAsp") shouldEqual PNameParser.parse("R123_K127delinsSD")
     }
+
+    it("parses frameshift") {
+      PNameParser.parse("Arg123fs").get shouldEqual ProteinFrameshift(123, Code.Arg)
+      PNameParser.parse("Arg123fs") shouldEqual PNameParser.parse("R123fs")
+    }
   }
 }

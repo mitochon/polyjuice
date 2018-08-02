@@ -22,6 +22,8 @@ object PNameParser {
   val rProteinDelIns = """(?:p\.)?([A-V][a-z][a-z])([\d]+)_([A-V][a-z][a-z])([\d]+)delins(([A-V][a-z][a-z])+)""".r
   // e.g. p.Cys28delinsTrpVal
   val rProteinDelInsSingle = """(?:p\.)?([A-V][a-z][a-z])([\d]+)delins(([A-V][a-z][a-z])+)""".r
+  // e.g. p.Gly12fs
+  val rProteinFs = """(?:p\.)?([A-V][a-z][a-z])([\d]+)fs""".r
 
   // e.g. p.T790M
   val rProteinSubLetter = """(?:p\.)?([A-Y\*])([\d]+)([A-Y\*])""".r
@@ -39,6 +41,8 @@ object PNameParser {
   val rProteinDelInsLetter = """(?:p\.)?([A-Y\*])([\d]+)_([A-Y\*])([\d]+)delins([A-Y\*]+)""".r
   // e.g. p.C28delinsWV
   val rProteinDelInsSingleLetter = """(?:p\.)?([A-Y\*])([\d]+)delins([A-Y\*]+)""".r
+  // e.g. p.G12fs
+  val rProteinFsLetter = """(?:p\.)?([A-Y\*])([\d]+)fs""".r
 
   // conversion functions
   type AABuilder = String => AminoAcid.Code.Value
@@ -136,6 +140,17 @@ object PNameParser {
     } yield ProteinDelIns(s, sAa, e, eAa, seq.toList)).toOption
   }
 
+  def proteinFs(
+    pos: String,
+    str: String,
+    fn: AABuilder): Option[ProteinFrameshift] = {
+
+    (for {
+      p <- Try(pos.toInt)
+      aa <- Try(fn(str))
+    } yield ProteinFrameshift(p, aa)).toOption
+  }
+
   def parse(hgvs: String): Option[ProteinVariant] = {
     hgvs match {
       case rProteinSub(c1, p, c2)                 => proteinSub(p, c1, c2, aaFromCode)
@@ -146,6 +161,7 @@ object PNameParser {
       case rProteinIns(sc, s, ec, e, ps, _)       => proteinIns(s, sc, e, ec, ps, aaFromCode, aaSeqFromCode)
       case rProteinDelIns(sc, s, ec, e, ps, _)    => proteinDelIns(s, sc, Some(e), Some(ec), ps, aaFromCode, aaSeqFromCode)
       case rProteinDelInsSingle(sc, s, ps, _)     => proteinDelIns(s, sc, None, None, ps, aaFromCode, aaSeqFromCode)
+      case rProteinFs(c, p)                       => proteinFs(p, c, aaFromCode)
       case rProteinSubLetter(l1, p, l2)           => proteinSub(p, l1, l2, aaFromLetter)
       case rProteinDelLetter(sl, s, el, e)        => proteinDel(s, sl, Some(e), Some(el), aaFromLetter)
       case rProteinDupLetter(sl, s, el, e)        => proteinDup(s, sl, Some(e), Some(el), aaFromLetter)
@@ -154,6 +170,7 @@ object PNameParser {
       case rProteinInsLetter(sl, s, el, e, ps)    => proteinIns(s, sl, e, el, ps, aaFromLetter, aaSeqFromLetter)
       case rProteinDelInsLetter(sl, s, el, e, ps) => proteinDelIns(s, sl, Some(e), Some(el), ps, aaFromLetter, aaSeqFromLetter)
       case rProteinDelInsSingleLetter(sl, s, ps)  => proteinDelIns(s, sl, None, None, ps, aaFromLetter, aaSeqFromLetter)
+      case rProteinFsLetter(l, p)                 => proteinFs(p, l, aaFromLetter)
       case _                                      => None
     }
   }

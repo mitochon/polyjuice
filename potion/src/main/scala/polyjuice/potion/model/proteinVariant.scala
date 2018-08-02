@@ -32,3 +32,7 @@ case class ProteinDelIns(
   end: Option[Int],
   endAa: Option[AminoAcid.Code.Value],
   inserted: Seq[AminoAcid.Code.Value]) extends ProteinVariant
+
+case class ProteinFrameshift(
+  pos: Int,
+  from: AminoAcid.Code.Value) extends ProteinVariant
