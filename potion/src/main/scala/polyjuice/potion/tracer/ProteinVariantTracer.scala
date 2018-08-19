@@ -19,6 +19,17 @@ case class ProteinVariantTracer(gene: Gene) {
     variants.getOrElse(Set())
   }
 
+  def aminoAcid(fs: ProteinFrameshift, transcript: Transcript): Set[VariantCoord] = {
+    val variants = for {
+      triple <- codonTracer.coord(fs.pos, transcript)
+      strand <- gene.get(transcript).map(_.strand)
+      from <- AminoAcid.ByCode.get(fs.from)
+      if checkMatch(triple, from, strand)
+    } yield Set(VariantBuilder.frameshift(triple, strand))
+
+    variants.getOrElse(Set())
+  }
+
   def aminoAcid(sub: ProteinSub): Map[Transcript, Set[VariantCoord]] = {
     for {
       (transcript, triple) <- codonTracer.coord(sub.pos)
@@ -29,17 +40,28 @@ case class ProteinVariantTracer(gene: Gene) {
     } yield (transcript, to.codons.flatMap(VariantBuilder.build(triple, _, strand)))
   }
 
+  def aminoAcid(fs: ProteinFrameshift): Map[Transcript, Set[VariantCoord]] = {
+    for {
+      (transcript, triple) <- codonTracer.coord(fs.pos)
+      strand <- gene.get(transcript).map(_.strand)
+      from <- AminoAcid.ByCode.get(fs.from)
+      if checkMatch(triple, from, strand)
+    } yield (transcript, Set(VariantBuilder.frameshift(triple, strand)))
+  }
+
   def aminoAcid(pvar: ProteinVariant, transcript: Transcript): Set[VariantCoord] = {
     pvar match {
-      case sub: ProteinSub => aminoAcid(sub, transcript)
-      case _               => Set()
+      case sub: ProteinSub       => aminoAcid(sub, transcript)
+      case fs: ProteinFrameshift => aminoAcid(fs, transcript)
+      case _                     => Set()
     }
   }
 
   def aminoAcid(pvar: ProteinVariant): Map[Transcript, Set[VariantCoord]] = {
     pvar match {
-      case sub: ProteinSub => aminoAcid(sub)
-      case _               => Map()
+      case sub: ProteinSub       => aminoAcid(sub)
+      case fs: ProteinFrameshift => aminoAcid(fs)
+      case _                     => Map()
     }
   }
 }

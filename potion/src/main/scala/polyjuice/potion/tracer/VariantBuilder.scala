@@ -4,6 +4,13 @@ import polyjuice.potion.model._
 
 object VariantBuilder {
 
+  val Gen = util.Random
+
+  def genBase: Base = {
+    val bases = Array(Base.A, Base.C, Base.T, Base.G)
+    bases(Gen.nextInt(4))
+  }
+
   def snv(single: Single, to: Base, strand: Strand.Value = Strand.Plus): Snv = {
     strand match {
       case Strand.Plus  => Snv(single.contig, single.pos, single.base, to)
@@ -100,5 +107,15 @@ object VariantBuilder {
       toInt(from.first != to.first),
       toInt(from.second != to.second),
       toInt(from.third != to.third))
+  }
+
+  def frameshift(triple: Triple, strand: Strand.Value): VariantCoord = {
+    // randomly inserts or 1 to 2 bases or delete the second base in the codon
+    if (Gen.nextBoolean()) {
+      val bases = List.fill(1 + Gen.nextInt(2))(genBase)
+      Ins(triple.contig, triple.pos + 1, Some(triple.bases.second), triple.bases.second +: bases)
+    } else {
+      Del(triple.contig, triple.pos, triple.bases.toSeq.take(2), Some(triple.bases.first))
+    }
   }
 }
