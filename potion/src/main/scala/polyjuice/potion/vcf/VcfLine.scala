@@ -29,15 +29,18 @@ object VcfLine {
 
   val Missing = "."
   val InfoSeparator = ";"
+  val ValueSeparator = ","
   val FormatSeparator = ":"
 
   val GTFormatKey = FormatKey("GT", Count(1), DataType.StringType, "Genotype")
-  val TranscriptKey = InfoKey("TR", Count(1), DataType.StringType, "Transcript")
+  val TranscriptKey = InfoKey("TR", Unbounded, DataType.StringType, "Transcript")
 
-  def apply(variant: VariantCoord, transcript: Option[Transcript]): VcfLine = {
-    val infoMap = transcript.map(t => Map((TranscriptKey -> t))).getOrElse(Map())
+  def apply(variant: VariantCoord, transcripts: Seq[Transcript]): VcfLine = {
 
     def alleleStr(b: Option[Base]): String = b.map(_.toString).getOrElse(Missing)
+
+    val infoMap = transcripts.headOption.fold(Map[InfoKey, String]())(
+      _ => Map(TranscriptKey -> transcripts.mkString(ValueSeparator)))
 
     variant match {
       case Snv(c, p, r, a)     => VcfLine(c, p, r.toString, a.toString, infoMap)
