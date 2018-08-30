@@ -60,3 +60,25 @@ case class Complex(
 
   require(ref.nonEmpty && alt.nonEmpty && ref.length != alt.length)
 }
+
+object VariantCoord {
+
+  // Note: this ordering will NOT produce a stable sort
+  object OrderingByBaseLength extends Ordering[VariantCoord] {
+
+    override def compare(a: VariantCoord, b: VariantCoord) = {
+      (a, b) match {
+        case (s1: Snv, s2: Snv)         => 0
+        case (m1: Mnv, m2: Mnv)         => Ordering[Int].compare(m1.ref.size, m2.ref.size)
+        case (i1: Ins, i2: Ins)         => Ordering[Int].compare(i1.alt.size, i2.alt.size)
+        case (d1: Del, d2: Del)         => Ordering[Int].compare(d1.ref.size, d2.ref.size)
+        case (c1: Complex, c2: Complex) => Ordering[Int].compare(c1.ref.size + c1.alt.size, c2.ref.size + c2.alt.size)
+        case (s: Snv, _)                => -1 // prioritize snv first
+        case (_, s: Snv)                => 1
+        case (m: Mnv, _)                => -1 // then mnv
+        case (_, m: Mnv)                => 1
+        case _                          => 0
+      }
+    }
+  }
+}

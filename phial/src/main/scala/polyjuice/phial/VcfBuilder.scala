@@ -17,12 +17,16 @@ case class VcfBuilder(req: Hgvs2VcfRequest) {
   val formatKeys = req.appendFormatFields.map(VcfKeyBuilder.buildMap(_, _.buildFormatKey))
   val maxPerEntry = req.maxVariantsPerEntry.filter(_ > 0)
 
+  def applyEntryLimit(variants: Set[VariantCoord]): Set[VariantCoord] = {
+    maxPerEntry.fold(variants)(max => variants.toSeq.sorted(VariantCoord.OrderingByBaseLength).take(max).toSet)
+  }
+
   def buildGeneCoords(api: Api): Seq[HgvsVcfOutcome] = {
     val getVariant = (e: HgvsEntry) => e.gene.flatMap(api.hgvsCName(e.hgvs, _))
     val getVariantSet = (e: HgvsEntry) => e.gene.flatMap(api.hgvsPName(e.hgvs, _))
 
     entriesWithGene(cnameGeneEntries.map(e => (e, getVariant(e)))) ++
-      entriesWithGeneSet(pnameGeneEntries.map(e => (e, getVariantSet(e))))
+      entriesWithGeneSet(pnameGeneEntries.map(e => (e, getVariantSet(e).map(_.mapValues(applyEntryLimit)))))
   }
 
   def buildTranscriptCoords(api: Api): Seq[HgvsVcfOutcome] = {
@@ -30,7 +34,7 @@ case class VcfBuilder(req: Hgvs2VcfRequest) {
     val getVariantSet = (e: HgvsEntry) => e.transcript.flatMap(api.hgvsPNameTranscript(e.hgvs, _))
 
     entriesWithTranscript(cnameTranscriptEntries.map(e => (e, getVariant(e)))) ++
-      entriesWithTranscriptSet(pnameTranscriptEntries.map(e => (e, getVariantSet(e))))
+      entriesWithTranscriptSet(pnameTranscriptEntries.map(e => (e, getVariantSet(e).map(applyEntryLimit))))
   }
 
   def buildMetaKeys(api: Api, unmatchedEntries: Seq[HgvsEntry] = Seq()): Seq[MetaKey] = {
