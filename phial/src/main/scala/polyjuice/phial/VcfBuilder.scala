@@ -3,7 +3,6 @@ package polyjuice.phial
 import polyjuice.phial.model._
 import polyjuice.potion.model._
 import polyjuice.potion.vcf._
-import scala.util.Random
 
 case class VcfBuilder(req: Hgvs2VcfRequest) {
 
@@ -14,17 +13,20 @@ case class VcfBuilder(req: Hgvs2VcfRequest) {
   val (cnameGeneEntries, cnameTranscriptEntries, badCNames) = HgvsEntry.partitionByGeneOrTranscript(cnameEntries)
 
   val errors = badEntries ++ badPNames ++ badCNames
-
   val infoKeys = req.appendInfoFields.map(VcfKeyBuilder.buildMap(_, _.buildInfoKey))
   val formatKeys = req.appendFormatFields.map(VcfKeyBuilder.buildMap(_, _.buildFormatKey))
-  val onePerTranscript = req.oneVariantPerTranscript.getOrElse(false)
+  val maxPerEntry = req.maxVariantsPerEntry.filter(_ > 0)
+
+  def applyEntryLimit(variants: Set[VariantCoord]): Set[VariantCoord] = {
+    maxPerEntry.fold(variants)(max => variants.toSeq.sorted(VariantCoord.OrderingByBaseLength).take(max).toSet)
+  }
 
   def buildGeneCoords(api: Api): Seq[HgvsVcfOutcome] = {
     val getVariant = (e: HgvsEntry) => e.gene.flatMap(api.hgvsCName(e.hgvs, _))
     val getVariantSet = (e: HgvsEntry) => e.gene.flatMap(api.hgvsPName(e.hgvs, _))
 
     entriesWithGene(cnameGeneEntries.map(e => (e, getVariant(e)))) ++
-      entriesWithGeneSet(pnameGeneEntries.map(e => (e, getVariantSet(e))), onePerTranscript)
+      entriesWithGeneSet(pnameGeneEntries.map(e => (e, getVariantSet(e).map(_.mapValues(applyEntryLimit)))))
   }
 
   def buildTranscriptCoords(api: Api): Seq[HgvsVcfOutcome] = {
@@ -32,7 +34,7 @@ case class VcfBuilder(req: Hgvs2VcfRequest) {
     val getVariantSet = (e: HgvsEntry) => e.transcript.flatMap(api.hgvsPNameTranscript(e.hgvs, _))
 
     entriesWithTranscript(cnameTranscriptEntries.map(e => (e, getVariant(e)))) ++
-      entriesWithTranscriptSet(pnameTranscriptEntries.map(e => (e, getVariantSet(e))), onePerTranscript)
+      entriesWithTranscriptSet(pnameTranscriptEntries.map(e => (e, getVariantSet(e).map(applyEntryLimit))))
   }
 
   def buildMetaKeys(api: Api, unmatchedEntries: Seq[HgvsEntry] = Seq()): Seq[MetaKey] = {
@@ -81,12 +83,10 @@ object VcfBuilder {
     })
   }
 
-  def entriesWithTranscriptSet(
-    xs: Seq[(HgvsEntry, Option[Set[VariantCoord]])],
-    onePerTranscript: Boolean = false): Seq[HgvsVcfOutcome] = {
+  def entriesWithTranscriptSet(xs: Seq[(HgvsEntry, Option[Set[VariantCoord]])]): Seq[HgvsVcfOutcome] = {
 
     def buildFromSet(e: HgvsEntry, s: Set[VariantCoord]) = {
-      e.transcript.map(toVcfLine(_, s, onePerTranscript)).getOrElse(Seq())
+      e.transcript.map(toVcfLine(_, s)).getOrElse(Seq())
     }
     xs.flatMap {
       case (e, Some(s)) if s.nonEmpty => Seq(Right((e, buildFromSet(e, s))))
@@ -100,29 +100,23 @@ object VcfBuilder {
     })
   }
 
-  def entriesWithGeneSet(
-    xs: Seq[(HgvsEntry, Option[Map[Transcript, Set[VariantCoord]]])],
-    onePerTranscript: Boolean = false): Seq[HgvsVcfOutcome] = {
-
-    def buildFromMap(map: Map[Transcript, Set[VariantCoord]]) = {
-      map.flatMap {
-        case (k, v) => toVcfLine(k, v, onePerTranscript)
-      }
-    }
+  def entriesWithGeneSet(xs: Seq[(HgvsEntry, Option[Map[Transcript, Set[VariantCoord]]])]): Seq[HgvsVcfOutcome] = {
     xs.flatMap {
-      case (e, Some(m)) if m.nonEmpty => Seq(Right((e, buildFromMap(m).toSeq)))
+      case (e, Some(m)) if m.nonEmpty => Seq(Right((e, toVcfLine(m))))
       case (e, _)                     => Seq(Left(e))
     }
   }
 
-  def toVcfLine(transcript: Transcript, set: Set[VariantCoord], onePerTranscript: Boolean): Seq[VcfLine] = {
-    if (onePerTranscript) Random.shuffle(set.toSeq).take(1).map(VcfLine(_, Some(transcript)))
-    else set.toSeq.map(VcfLine(_, Some(transcript)))
+  def toVcfLine(transcript: Transcript, set: Set[VariantCoord]): Seq[VcfLine] = {
+    set.toSeq.map(VcfLine(_, Seq(transcript)))
   }
 
-  def toVcfLine(map: Map[Transcript, VariantCoord]): Seq[VcfLine] = {
-    map.toSeq.map {
-      case (transcript, variant) => VcfLine(variant, Some(transcript))
+  def toVcfLine(map: Map[Transcript, Set[VariantCoord]]): Seq[VcfLine] = {
+    val invertedMap = map.toSeq.flatMap {
+      case (tr, variants) => variants.seq.map(v => (v, tr))
+    }
+    invertedMap.groupBy(_._1).mapValues(_.map(_._2)).toSeq.map {
+      case (variant, transcripts) => VcfLine(variant, transcripts)
     }
   }
 

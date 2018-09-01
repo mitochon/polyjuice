@@ -137,4 +137,4 @@ proteinVariantTracer.aminoAcid(ProteinSub(790, AminoAcid.Code.Thr, AminoAcid.Cod
 //| ntCoord]] = Map(ENST00000275493 -> Set(Snv(7,55181378,C,T)))
 ```
 
-For protein variant tracer, only substitutions are supported.
+For protein variant tracer, only substitutions and short-format frameshifts are supported.
