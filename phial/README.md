@@ -184,7 +184,7 @@ Protein HGVS must start with **p.** whereas DNA HGVS must start with a **c.**.
 
 Only a limited types of substitutions are currently supported:
   * Notations involving intronic regions and UTR regions are not supported.
-  * Protein HGVS only supports simple substitutions.
+  * Protein HGVS only supports simple substitutions and short-format frameshifts.
   * DNA coding sequence HGVS does not support conversions.
 
 #### Syntax Checker
@@ -230,7 +230,7 @@ POST `/api/polyjuice/hgvs2vcf`
 | entries | List of HGVS entry objects | Mutations of interest. |
 | appendInfoFields | List of VCF key builder objects | Extra __INFO__ fields. Optional. |
 | appendFormatFields | List of VCF key builder objects | Extra __FORMAT__ fields. Optional. |
-| oneVariantPerTranscript | Boolean | Pick one variant per transcript. Optional. Defaults to false. |
+| maxVariantsPerEntry | Int | Max number of representations per variant. Optional. |
 | vcfFileFormat | String | __fileformat__ per [VCF specifications](https://samtools.github.io/hts-specs/VCFv4.3.pdf), e.g. __4.3__. |
 | addChrPrefix | Boolean | Add 'chr' prefix to contigs. Optional. Defaults to false. |
 
@@ -294,7 +294,7 @@ Sample request body
 		}
 	],
 	"addChrPrefix": true,
-	"oneVariantPerTranscript": true,
+	"maxVariantsPerEntry": 1,
 	"vcfFileFormat": "4.2"
 }
 ```
@@ -305,7 +305,7 @@ Sample response
 
 ```
 ##fileformat=VCFv4.2
-##INFO=<ID=TR,Number=1,Type=String,Description="Transcript">
+##INFO=<ID=TR,Number=.,Type=String,Description="Transcript">
 ##INFO=<ID=HGVS,Number=1,Type=String,Description="HGVS string">
 ##INFO=<ID=DP,Number=1,Type=Integer,Description="Depth">
 ##INFO=<ID=ALTDP,Number=1,Type=Integer,Description="Allele Count">

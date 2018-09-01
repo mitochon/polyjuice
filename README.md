@@ -25,7 +25,7 @@ All the *gene* endpoints have a corresponding *transcript* endpoints. The differ
 This tool only handles coding regions for cds' and codons. The following cases are NOT handled:
   * Mutations crossing intronic regions and UTR regions.
   * For [DNA](http://varnomen.hgvs.org/recommendations/DNA/) coding sequence: conversions, copy number variations, allele combinations, complex mutations.
-  * For [Protein](http://varnomen.hgvs.org/recommendations/protein/): anything but simple substitutions.
+  * For [Protein](http://varnomen.hgvs.org/recommendations/protein/): anything but simple substitutions and short-format frameshifts.
 
 
 ## Related work
