@@ -5,7 +5,7 @@ object Dependencies {
   lazy val circeVersion = "0.9.3"
   lazy val http4sVersion = "0.18.16"
   lazy val logbackVersion = "1.2.3"
-  lazy val scalaTestVersion = "3.0.3"
+  lazy val scalaTestVersion = "3.0.8"
   lazy val typesafeConfigVersion = "1.3.3"
   lazy val typesafeLoggingVersion = "3.8.0"
 
