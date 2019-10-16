@@ -6,7 +6,7 @@ object Dependencies {
   lazy val http4sVersion = "0.18.24"
   lazy val logbackVersion = "1.2.3"
   lazy val scalaTestVersion = "3.0.8"
-  lazy val typesafeConfigVersion = "1.3.4"
+  lazy val typesafeConfigVersion = "1.4.0"
   lazy val typesafeLoggingVersion = "3.9.2"
 
   // web services, including json
