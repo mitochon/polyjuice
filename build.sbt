@@ -2,7 +2,7 @@ import Dependencies._
 
 lazy val mavenReleaseSettings = Seq(
 	publishMavenStyle := true,
-	publishTo := Some(sonatypeDefaultResolver.value),
+	publishTo := sonatypePublishToBundle.value,
 	licenses += "MIT License" -> url("http://www.opensource.org/licenses/mit-license.php"),
 	homepage := Some(url("https://github.com/mitochon/polyjuice")),
 	developers := List(
