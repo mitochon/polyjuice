@@ -1,5 +1,12 @@
 # Release Notes
 
+## 0.1.1
+
+- Add scala-steward for version updates
+- Add frameshift parser
+- Ordering based on variant base length
+- Update deploy scripts
+
 ## 0.1.0
 
 - Ensembl _.gff3_ and _.fasta_ parser
