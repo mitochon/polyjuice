@@ -1,4 +1,5 @@
 import Dependencies._
+import ReleaseTransformations._
 
 lazy val mavenReleaseSettings = Seq(
 	publishMavenStyle := true,
@@ -21,8 +22,20 @@ lazy val mavenReleaseSettings = Seq(
 
 lazy val sbtReleasePluginSettings = Seq(
 	releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-	releaseProcess += releaseStepCommand("sonatypeRelease"),
-	releaseIgnoreUntrackedFiles := true
+	releaseIgnoreUntrackedFiles := true,
+	releaseProcess := Seq[ReleaseStep](
+		checkSnapshotDependencies,
+		inquireVersions,
+		runClean,
+		setReleaseVersion,
+		commitReleaseVersion,
+		tagRelease,
+		releaseStepCommandAndRemaining("publishSigned"),
+		releaseStepCommand("sonatypeBundleRelease"),
+		setNextVersion,
+		commitNextVersion,
+		pushChanges
+	)
 )
 
 lazy val commonSettings = Seq(
