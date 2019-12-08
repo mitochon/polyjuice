@@ -1,10 +1,11 @@
 package polyjuice.potion.tracer
 
-import org.scalatest.{ FunSpec, Matchers }
 
 import polyjuice.potion.model._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class OffsetTest extends FunSpec with Matchers {
+class OffsetTest extends AnyFunSpec with Matchers {
 
   describe("offset") {
 
