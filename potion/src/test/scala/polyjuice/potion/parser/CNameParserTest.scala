@@ -1,10 +1,11 @@
 package polyjuice.potion.parser
 
-import org.scalatest.{ FunSpec, Matchers }
 
 import polyjuice.potion.model._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class CNameParserTest extends FunSpec with Matchers {
+class CNameParserTest extends AnyFunSpec with Matchers {
 
   describe("cname parser") {
 

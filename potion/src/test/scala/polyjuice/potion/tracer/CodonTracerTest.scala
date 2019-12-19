@@ -1,10 +1,11 @@
 package polyjuice.potion.tracer
 
-import org.scalatest.{ FunSpec, Matchers }
 
 import polyjuice.potion.model._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class CodonTracerTest extends FunSpec with Matchers {
+class CodonTracerTest extends AnyFunSpec with Matchers {
 
   describe("codon tracer") {
 
