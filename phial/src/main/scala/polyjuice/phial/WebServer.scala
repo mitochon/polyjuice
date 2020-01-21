@@ -13,6 +13,7 @@ import fs2.{ Stream, StreamApp }
 import fs2.StreamApp.ExitCode
 import polyjuice.phial.model.{ Hgvs2VcfRequest, HgvsEntry, Status }
 import polyjuice.potion.model._
+import org.http4s.server.blaze.BlazeServerBuilder
 
 object WebServer extends StreamApp[IO] {
 
@@ -47,7 +48,7 @@ object WebServer extends StreamApp[IO] {
 
   val status = Status(api.ensemblBuild, api.genes.keySet.toList.sorted)
 
-  val service = HttpService[IO] {
+  val service = HttpRoutes.of[IO] {
     case GET -> Root / "status" =>
       Ok(status.asJson)
 
@@ -115,7 +116,7 @@ object WebServer extends StreamApp[IO] {
   }
 
   override def stream(args: List[String], requestShutdown: IO[Unit]): Stream[IO, ExitCode] =
-    BlazeBuilder[IO]
+    BlazeServerBuilder[IO]
       .bindHttp(WebServerConfig.ServicePort, WebServerConfig.ServiceHost)
       .mountService(service, "/api/polyjuice")
       .serve
