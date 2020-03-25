@@ -3,7 +3,7 @@ import sbt._
 object Dependencies {
 
   lazy val circeVersion = "0.12.1"
-  lazy val http4sVersion = "0.18.24"
+  lazy val http4sVersion = "0.18.26"
   lazy val logbackVersion = "1.2.3"
   lazy val scalaTestVersion = "3.1.0"
   lazy val typesafeConfigVersion = "1.4.0"
