@@ -40,7 +40,7 @@ lazy val sbtReleasePluginSettings = Seq(
 
 lazy val commonSettings = Seq(
 	organization := "me.mitochon",
-	scalaVersion := "2.12.7",
+	scalaVersion := "2.12.15",
 	libraryDependencies += scalaTest % Test
 ) ++ mavenReleaseSettings ++ sbtReleasePluginSettings
 
